@@ -224,6 +224,10 @@ input[aria-invalid="true"]{border-color:var(--accent)}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px clamp(16px,2.5vw,24px) 22px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .card h3{font-size:1.15rem;font-weight:700}
 .card.wide{grid-column:1/-1}
+.lqd{border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.lqd summary{cursor:pointer;font-weight:600;font-size:.88rem;color:var(--accent)}
+.lqd ol{margin:10px 0 0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px;font-size:.84rem}
+.lqd ol span{display:block;color:var(--muted);font-size:.8rem}
 .card p,.card li{font-size:.9rem;color:var(--ink)}
 .card .sub{color:var(--muted);font-size:.84rem}
 .wcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
@@ -291,7 +295,7 @@ td.hl{color:var(--accent);font-weight:700}
         </div>
         <div class="field">
           <div class="lab"><span id="me-looks-l">외모</span></div>
-          <p class="tip">사진을 직접 고르면 대부분 후하게 고르게 돼서, 질문에 답하면 단계가 자동으로 정해져요. 클럽·헌팅포차·소개팅앱 같은 가벼운 만남은 빼고 평소 일상 기준으로 답해 주세요.</p>
+          <p class="tip">사진을 직접 고르면 대부분 후하게 고르게 돼서, 질문에 답하면 단계가 자동으로 정해져요. 클럽·헌팅포차·소개팅앱 같은 가벼운 만남은 빼고 평소 일상 기준으로 답해 주세요. 답하지 않은 질문은 0점으로 계산해요.</p>
           <div class="lq" id="me-looks-q"></div>
           <div class="lres" id="me-looks-res" aria-live="polite"></div>
         </div>
@@ -400,7 +404,10 @@ td.hl{color:var(--accent);font-weight:700}
       </article>
       <article class="card">
         <h3>외모는 질문으로 재요</h3>
-        <p>본인 외모는 사진을 직접 고르지 않고 질문 6개에 답한 점수로 정해요. 캐스팅 제의, 길에서의 반응, 일상에서 이성에게 듣는 말, 고백, 모임에서 꼽히는지, 체형을 물어요. 1단계(연예인급)는 캐스팅 제의를 받았거나 대부분이 돌아보는 경우에만 나와요. 원하는 상대의 외모는 지금처럼 사진으로 골라요.</p>
+        <p>본인 외모는 사진을 직접 고르지 않고 질문 10개에 답한 점수 합계로 정해요. 칭찬 한두 개로 높은 단계가 나오지 않도록, 여자는 단계마다 필요한 점수를 더 높게 잡았어요. 1단계(연예인급)는 캐스팅 제의를 받았거나 대부분이 돌아보는 경우에만 나와요. 원하는 상대의 외모는 지금처럼 사진으로 골라요.</p>
+        <div class="tbl-wrap"><table id="looksCutTbl"><thead><tr><th>단계</th><th>남자 필요 점수</th><th>여자 필요 점수</th></tr></thead><tbody></tbody></table></div>
+        <details class="lqd"><summary>남자 질문별 점수 보기</summary><div id="lqM"></div></details>
+        <details class="lqd"><summary>여자 질문별 점수 보기</summary><div id="lqF"></div></details>
         <div class="tbl-wrap"><table id="looksTbl"><thead><tr><th>외모 단계</th><th>이 정도 이상 여성</th><th>이 정도 이상 남성</th></tr></thead><tbody></tbody></table></div>
         <p><b>같은 번호라도 남자가 더 귀해요.</b></p>
         <p class="sub">꾸미고 관리하는 여성이 관리하는 남성보다 훨씬 많아서, 같은 단계라도 남성 쪽이 더 드물게 잡았어요. 온라인 데이팅 데이터에서도 여성은 남성의 80% 이상을 평균 아래로 평가한 반면, 남성은 여성의 약 60%를 평균 이상으로 평가했어요 (OkCupid).</p>
@@ -500,18 +507,27 @@ const LOOKS_Q = {
     {id:'daily',q:'일상에서 만난 여자 동료나 여자인 친구들에게 주로 어떤 말을 듣나요?',opts:[['다이어트·피부과·제모 등 관리해 보라는 조언',-3],['평범하다',0],['깔끔하다, 무난하다',1],['호감형이다',2],['잘생겼다',4]]},
     {id:'confess',q:'여자에게 먼저 좋아한다는 고백을 받는 편인가요?',opts:[['거의 없고 내가 고백하는 편이에요',0],['가끔 받아요',1.5],['종종 받아요',3]]},
     {id:'group',q:'친구 모임이나 직장에서 외모로 꼽히나요?',opts:[['꼽히지 않아요',0],['가끔 꼽혀요',1.5],['어느 모임에서나 1~2등으로 꼽혀요',4]]},
+    {id:'school',q:'학창 시절에 외모로 알려져 있었나요?',opts:[['아니요',0],['반에서는 알려져 있었어요',1],['학교에서 유명했어요',2.5]]},
+    {id:'after',q:'소개팅이나 지인 소개로 만난 여자가 애프터에 응하거나 먼저 연락하는 편인가요?',opts:[['거의 거절당해요',-1.5],['반반이에요',0],['대부분 응하고 먼저 연락도 와요',1.5]]},
+    {id:'hair',q:'머리숱은 어떤가요?',opts:[['탈모가 눈에 띄게 진행됐어요',-3],['조금 걱정되는 정도예요',-1],['괜찮아요',0]]},
+    {id:'skin',q:'피부 상태는 어떤가요?',opts:[['트러블이나 흉터가 눈에 띄어요',-1.5],['보통이에요',0],['깨끗하다는 말을 들어요',0.5]]},
     {id:'body',q:'체형은 어느 쪽에 가깝나요?',opts:[['운동해서 탄탄해요',1],['보통이에요',0],['너무 마르거나 어깨가 좁은 편이에요',-1.5],['과체중이에요',-3],['비만이에요',-6]]}
   ],
   F:[
     {id:'cast',q:'연예기획사나 모델 에이전시에서 배우·아이돌·모델 제의를 받은 적이 있나요?',opts:[['없어요',0],['한 번 있어요',4],['여러 번 있어요',8]]},
-    {id:'street',q:'길을 걷거나 처음 가는 곳에서 사람들 반응은 어떤가요?',opts:[['특별한 반응은 없어요',0],['가끔 번호를 물어봐요',1.5],['번호를 물어보는 일이 자주 있어요',3],['대부분의 사람들이 돌아봐요',7]]},
+    {id:'street',q:'길을 걷거나 처음 가는 곳에서 사람들 반응은 어떤가요?',opts:[['특별한 반응은 없어요',0],['가끔 번호를 물어봐요',1],['번호를 물어보는 일이 자주 있어요',2.5],['대부분의 사람들이 돌아봐요',7]]},
     {id:'perk',q:'대학교 홍보모델 제의를 받거나, 외모 인증 파티에서 무료 초대·할인 혜택을 받아 본 적이 있나요?',opts:[['없어요',0],['가끔 있어요',1.5],['자주 받아요',3]]},
     {id:'daily',q:'일상에서 만난 남자 동료나 남자인 친구들에게 주로 어떤 말을 듣나요?',opts:[['관리해 보라는 조언',-3],['평범하다',0],['예쁘장하다, 나쁘지 않다',1],['예쁘다는 말을 자주 들어요',2.5],['예외 없이 항상 예쁘다고 해요',4]]},
     {id:'group',q:'모임에서 예쁜 사람을 꼽을 때 언급되나요?',opts:[['거의 언급되지 않아요',0],['종종 언급돼요',1.5],['항상 언급돼요',3],['어느 모임에서나 1등으로 꼽혀요',4.5]]},
-    {id:'body',q:'체형은 어느 쪽에 가깝나요?',opts:[['날씬하고 관리된 편이에요',1],['보통이에요',0],['통통한 편이에요',-1.5],['과체중이에요',-3],['비만이에요',-6]]}
+    {id:'school',q:'학창 시절에 외모로 알려져 있었나요?',opts:[['아니요',0],['반에서는 알려져 있었어요',1],['학교에서 유명했어요',2.5]]},
+    {id:'after',q:'소개팅이나 지인 소개로 만난 남자가 애프터를 신청하는 편인가요?',opts:[['거의 없어요',-1.5],['반반이에요',0],['대부분 신청해요',1]]},
+    {id:'nomakeup',q:'화장을 안 했거나 꾸미지 않은 날에도 예쁘다는 말을 듣나요?',opts:[['거의 없어요',0],['가끔 들어요',1],['자주 들어요',2]]},
+    {id:'skin',q:'피부 상태는 어떤가요?',opts:[['트러블이나 흉터가 눈에 띄어요',-1.5],['보통이에요',0],['깨끗하다는 말을 자주 들어요',1]]},
+    {id:'body',q:'체형은 어느 쪽에 가깝나요?',opts:[['날씬하고 관리된 편이에요',0.5],['보통이에요',0],['통통한 편이에요',-2],['과체중이에요',-3.5],['비만이에요',-6]]}
   ]
 };
-const LOOKS_CUT = {M:[16,10,6.5,3,1,-1,-3.5,-5,-7.5], F:[15,10.5,7.5,4.5,1.5,-1,-3.5,-5,-7.5]};
+// minimum total for levels 1..9 (below the last → 10). Women's bar is set higher so one or two compliments aren't enough.
+const LOOKS_CUT = {M:[16,10,6.5,3,1,-1,-3.5,-5,-7.5], F:[22,16,11.5,7.5,3.5,-1,-3.5,-5.5,-8]};
 function looksFromAnswers(g,ans){
   let score=0;for(const q of LOOKS_Q[g]){const a=ans[q.id];if(a!=null&&q.opts[a])score+=q.opts[a][1];}
   const cut=LOOKS_CUT[g];let L=10;for(let k=0;k<cut.length;k++){if(score>=cut[k]){L=k+1;break;}}
@@ -589,9 +605,9 @@ const RADAR = [
   {key:'family', label:'집안', parts:['family']}
 ];
 const EXAMPLES = {
-  M:{me:{age:34,height:175,looks:5,looksAns:{cast:0,street:0,daily:2,confess:0,group:0,body:1},income:6000,assets:15000,job:'big',edu:'seoul',fam:'f5'},
+  M:{me:{age:34,height:175,looks:5,looksAns:{cast:0,street:0,daily:2,confess:0,group:0,school:0,after:1,hair:2,skin:1,body:1},income:6000,assets:15000,job:'big',edu:'seoul',fam:'f5'},
      want:{ageMin:28,ageMax:32,height:160,looks:3,income:null,assets:null,jobs:[],edu:null,fam:'f4'}},
-  F:{me:{age:32,height:163,looks:4,looksAns:{cast:0,street:0,perk:0,daily:3,group:2,body:1},income:4500,assets:8000,job:'mid',edu:'seoul',fam:'f5'},
+  F:{me:{age:32,height:163,looks:4,looksAns:{cast:0,street:0,perk:0,daily:3,group:2,school:0,after:2,nomakeup:1,skin:1,body:1},income:4500,assets:8000,job:'mid',edu:'seoul',fam:'f5'},
      want:{ageMin:31,ageMax:36,height:178,looks:4,income:7000,assets:null,jobs:['doc','law','dent','cpa','major','fin','big'],edu:null,fam:null}}
 };
 // similarity penalty: people look for partners like themselves on each of these axes, not only on the total
@@ -937,6 +953,8 @@ function renderMethod(){
   $('#wM').innerHTML=bars('M');$('#wF').innerHTML=bars('F');
   let rows='';for(let L=0;L<10;L++){rows+=`<tr><td>${L+1}단계 · ${LOOKS.label.F[L]===LOOKS.label.M[L]?LOOKS.label.M[L]:LOOKS.label.F[L]+'/'+LOOKS.label.M[L]}</td><td>상위 ${+cumTop(LOOKS.share.F,L).toFixed(1)}%</td><td class="hl">상위 ${+cumTop(LOOKS.share.M,L).toFixed(1)}%</td></tr>`;}
   $('#looksTbl tbody').innerHTML=rows;
+  $('#looksCutTbl tbody').innerHTML=Array.from({length:10},(_,k)=>{const f=g=>k<9?`${LOOKS_CUT[g][k]}점 이상`:`${LOOKS_CUT[g][8]}점 미만`;return `<tr><td>${k+1}단계${k===0?' (캐스팅 제의나 대부분이 돌아봄 필수)':''}</td><td>${f('M')}</td><td>${f('F')}</td></tr>`;}).join('');
+  ['M','F'].forEach(g=>{$('#lq'+g).innerHTML='<ol>'+LOOKS_Q[g].map(q=>`<li>${q.q}<span>${q.opts.map(o=>`${o[0]} ${o[1]>0?'+':''}${o[1]}`).join(' · ')}</span></li>`).join('')+'</ol>';});
   $('#ageTbl tbody').innerHTML=Array.from({length:16},(_,i)=>25+i).map(k=>{const a=toIntl(k),mp=menAgePenalty(a);return `<tr><td>${k}살</td><td>${Math.round(ageScore('F',a))}점</td><td>${Math.round(ageScore('M',a))}점</td><td class="${mp?'hl':''}">${mp?`−${mp}점`:'없음'}</td></tr>`;}).join('');
   $('#hDemandTbl tbody').innerHTML=[175,176,177,178,179,180,181,182,183,185].map(h=>{const p=heightDemandPts(h);return `<tr><td>${h}cm 이상</td><td class="${p?'hl':''}">${p?`−${p}점`:'없음'}</td></tr>`;}).join('');
   $('#jobTbl tbody').innerHTML=JOB_ORDER.M.map(k=>`<tr><td>${JOBS[k].short}</td><td class="${k==='doc'?'hl':''}">${JOB_SCORE.M[k]}</td><td>${JOB_SCORE.F[k]}</td></tr>`).join('');
