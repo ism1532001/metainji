@@ -520,7 +520,7 @@ const LOOKS_Q = {
     {id:'daily',q:'일상에서 만난 남자 동료나 남자인 친구들에게 주로 어떤 말을 듣나요?',opts:[['관리해 보라는 조언',-3],['평범하다',0],['예쁘장하다, 나쁘지 않다',1],['예쁘다는 말을 자주 들어요',2.5],['예외 없이 항상 예쁘다고 해요',4]]},
     {id:'group',q:'모임에서 예쁜 사람을 꼽을 때 언급되나요?',opts:[['거의 언급되지 않아요',0],['종종 언급돼요',1.5],['항상 언급돼요',3],['어느 모임에서나 1등으로 꼽혀요',4.5]]},
     {id:'school',q:'학창 시절에 외모로 알려져 있었나요?',opts:[['아니요',0],['반에서는 알려져 있었어요',1],['학교에서 유명했어요',2.5]]},
-    {id:'after',q:'소개팅이나 지인 소개로 만난 남자가 애프터를 신청하는 편인가요?',opts:[['거의 없어요',-1.5],['반반이에요',0],['대부분 신청해요',1]]},
+    {id:'intro',q:'나를 보거나 내 사진을 본 남자가 지인에게 소개해 달라고 부탁하는 일이 있나요?',opts:[['거의 없어요',0],['가끔 있어요',0.5],['자주 있어요',1.5]]},
     {id:'nomakeup',q:'화장을 안 했거나 꾸미지 않은 날에도 예쁘다는 말을 듣나요?',opts:[['거의 없어요',0],['가끔 들어요',1],['자주 들어요',2]]},
     {id:'skin',q:'피부 상태는 어떤가요?',opts:[['트러블이나 흉터가 눈에 띄어요',-1.5],['보통이에요',0],['깨끗하다는 말을 자주 들어요',1]]},
     {id:'body',q:'체형은 어느 쪽에 가깝나요?',opts:[['날씬하고 관리된 편이에요',0.5],['보통이에요',0],['통통한 편이에요',-2],['과체중이에요',-3.5],['비만이에요',-6]]}
@@ -607,7 +607,7 @@ const RADAR = [
 const EXAMPLES = {
   M:{me:{age:34,height:175,looks:5,looksAns:{cast:0,street:0,daily:2,confess:0,group:0,school:0,after:1,hair:2,skin:1,body:1},income:6000,assets:15000,job:'big',edu:'seoul',fam:'f5'},
      want:{ageMin:28,ageMax:32,height:160,looks:3,income:null,assets:null,jobs:[],edu:null,fam:'f4'}},
-  F:{me:{age:32,height:163,looks:4,looksAns:{cast:0,street:0,perk:0,daily:3,group:2,school:0,after:2,nomakeup:1,skin:1,body:1},income:4500,assets:8000,job:'mid',edu:'seoul',fam:'f5'},
+  F:{me:{age:32,height:163,looks:4,looksAns:{cast:0,street:0,perk:0,daily:3,group:2,school:0,intro:2,nomakeup:1,skin:1,body:1},income:4500,assets:8000,job:'mid',edu:'seoul',fam:'f5'},
      want:{ageMin:31,ageMax:36,height:178,looks:4,income:7000,assets:null,jobs:['doc','law','dent','cpa','major','fin','big'],edu:null,fam:null}}
 };
 // similarity penalty: people look for partners like themselves on each of these axes, not only on the total
