@@ -93,7 +93,8 @@ input[aria-invalid="true"]{border-color:var(--accent)}
 @media (max-width:420px){.range .ctrl.age input[type=number]{padding-right:84px;padding-left:10px}.range .ctrl.age .suffix{right:10px}}
 .help{font-size:.78rem;color:var(--muted);min-height:1.2em}
 .help.err{color:var(--accent)}
-.range{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center}
+.field.wide{grid-column:1/-1}
+.range{max-width:460px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:center}
 .range input[type=number]{padding-right:34px}
 
 /* face picker */
@@ -278,6 +279,37 @@ td.hl{color:var(--accent);font-weight:700}
 .navlink,.back{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:.9rem;color:var(--accent);text-decoration:underline;text-underline-offset:4px}
 .navlink{margin-top:12px}
 .slip-foot a{color:var(--panel-fg);text-underline-offset:3px}
+.start{gap:22px}
+.start-q{font-size:clamp(1.5rem,3.6vw,2rem);font-weight:800}
+.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:720px){.choices{grid-template-columns:minmax(0,1fr)}}
+.choice{display:flex;flex-direction:column;gap:10px;text-decoration:none;border-radius:20px;padding:24px clamp(18px,3vw,28px) 22px;min-width:0;transition:transform .15s,box-shadow .15s}
+.choice:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.10)}
+.choice:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.choice.marry{background:var(--surface);color:var(--ink);border:1.5px solid var(--accent)}
+.choice.date{background:var(--panel);color:var(--panel-fg);border:1.5px solid var(--panel)}
+.c-eye{font-size:.76rem;font-weight:700;letter-spacing:.08em;color:var(--accent)}
+.choice.date .c-eye{color:var(--p-accent)}
+.c-title{font-family:var(--display);font-size:clamp(2rem,5vw,2.6rem);font-weight:800;line-height:1.1}
+.c-sub{font-size:.95rem;font-weight:600}
+.c-tags{display:flex;flex-wrap:wrap;gap:6px}
+.c-tags i{font-style:normal;font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.choice.date .c-tags i{background:var(--panel-2);color:var(--panel-fg)}
+.c-desc{font-size:.88rem;color:var(--muted);line-height:1.55}
+.choice.date .c-desc{color:var(--panel-muted)}
+.c-go{margin-top:auto;padding-top:8px;font-weight:700;font-size:.95rem;display:inline-flex;align-items:center;gap:8px;color:var(--accent)}
+.choice.date .c-go{color:var(--p-accent)}
+.c-go::after{content:"";width:8px;height:8px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg)}
+.start-note{font-size:.84rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.choice:hover{transform:none}}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;background:var(--surface-2);border-radius:16px;padding:6px}
+.mode{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;text-align:left;padding:12px 16px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.mode b{font-family:var(--display);font-size:1.15rem;font-weight:800;color:inherit}
+.mode small{font-size:.78rem;line-height:1.35}
+.mode[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.mode[aria-selected="true"] b{color:var(--accent)}
+.mode-note{font-size:.86rem;color:var(--ink);background:var(--accent-soft);border-radius:12px;padding:10px 14px;margin-top:-16px}
+.wrap[data-mode="date"] .spec{display:none!important}
 .disclaimer{font-size:.84rem;color:var(--muted);border-top:1px solid var(--line);padding-top:18px;max-width:52em}
 
 /* mobile bar */
@@ -293,7 +325,7 @@ td.hl{color:var(--accent);font-weight:700}
 <div class="wrap">
   <header class="masthead">
     <div>
-      <p class="eyebrow">결혼시장 눈높이 측정기</p>
+      <p class="eyebrow">결혼·연애 눈높이 측정기</p>
       <h1>메타인지</h1>
       <p class="lede">내 조건과 원하는 상대의 조건을 넣으면, 이성이 실제로 보는 기준에 맞춰 두 사람의 위치를 비교해 줘요. 눈이 높은지, 낮은지, 딱 맞는지 바로 확인해 보세요.</p>
       <a class="navlink" id="navlink" href="#method">계산 방식과 출처 보기</a>
@@ -301,7 +333,35 @@ td.hl{color:var(--accent);font-weight:700}
     <div class="chart" aria-hidden="true"><span>눈</span><span>높이</span><span>측정중</span><span>메타인지</span></div>
   </header>
 
-  <main class="view" id="view-app">
+  <section class="view start" id="view-start" aria-labelledby="h-start">
+    <h2 id="h-start" class="start-q">어떤 상대를 찾고 있나요?</h2>
+    <div class="choices">
+      <a class="choice marry" href="#marry">
+        <span class="c-eye">결혼 상대 찾기</span>
+        <span class="c-title">결혼 상대</span>
+        <span class="c-sub">외모·키·나이에 경제력·직업·집안까지</span>
+        <span class="c-tags"><i>외모</i><i>키</i><i>나이</i><i>연봉·자산</i><i>직업</i><i>학력</i><i>집안</i></span>
+        <span class="c-desc">결혼정보회사처럼 조건 전체로 내 위치와 원하는 상대를 비교해요.</span>
+        <span class="c-go">결혼 기준으로 판정하기</span>
+      </a>
+      <a class="choice date" href="#date">
+        <span class="c-eye">연애 상대 찾기</span>
+        <span class="c-title">연애 상대</span>
+        <span class="c-sub">외모·키·나이만 비교</span>
+        <span class="c-tags"><i>외모</i><i>키</i><i>나이</i></span>
+        <span class="c-desc">스펙은 빼고 보이는 것만 비교해요. 나이대별로 괜찮은 이성이 이미 결혼한 비율도 반영해요.</span>
+        <span class="c-go">연애 기준으로 판정하기</span>
+      </a>
+    </div>
+    <p class="start-note">판정 화면 위쪽 탭에서 언제든 다른 기준으로 바꿔 볼 수 있어요.</p>
+  </section>
+
+  <main class="view" id="view-app" hidden>
+  <div class="modes" role="tablist" aria-label="판정 기준">
+    <button type="button" role="tab" class="mode" id="mode-marry" data-mode="marry" aria-selected="true"><b>결혼 상대</b><small>외모·키·나이에 경제력·직업·집안까지</small></button>
+    <button type="button" role="tab" class="mode" id="mode-date" data-mode="date" aria-selected="false"><b>연애 상대</b><small>외모·키·나이만 비교</small></button>
+  </div>
+  <p class="mode-note" id="modeNote" hidden>연애 탭은 외모·키·나이만 봐요. 나이가 많을수록 괜찮은 이성은 이미 결혼했을 가능성이 높아서, 원하는 나이대에서 조건을 갖춘 사람 중 미혼 비율이 낮을수록 감점해요.</p>
   <div class="layout">
     <form class="inputs" id="form" novalidate>
       <div class="gender">
@@ -330,21 +390,21 @@ td.hl{color:var(--accent);font-weight:700}
             <button type="button" class="lqclose" id="me-looks-close">질문 접기</button>
           </details>
         </div>
-        <div class="row stack">
+        <div class="row stack spec">
           <div class="field"><label for="me-income">연봉 (세전)</label><div class="ctrl"><input type="number" id="me-income" inputmode="numeric" min="0" step="100"><span class="suffix">만원</span></div><p class="help" id="me-income-h"></p></div>
           <div class="field"><label for="me-assets">순자산 (부모님 지원 제외)</label><div class="ctrl"><input type="number" id="me-assets" inputmode="numeric" min="0" step="500"><span class="suffix">만원</span></div><p class="help" id="me-assets-h"></p></div>
         </div>
-        <div class="row stack">
+        <div class="row stack spec">
           <div class="field"><label for="me-job">직업</label><select id="me-job"></select></div>
           <div class="field"><label for="me-edu">학력</label><select id="me-edu"></select></div>
         </div>
-        <div class="field"><label for="me-fam">집안 (부모님 기준)</label><select id="me-fam"></select></div>
+        <div class="field spec"><label for="me-fam">집안 (부모님 기준)</label><select id="me-fam"></select></div>
       </section>
 
       <section class="block" aria-labelledby="h-want">
         <div class="block-head"><h2 id="h-want">원하는 상대</h2><p>최소 이 정도는 됐으면 하는 선을 골라요</p></div>
         <div class="row stack">
-          <div class="field"><span class="lab">나이 (한국 나이)</span>
+          <div class="field wide"><span class="lab">나이 (한국 나이)</span>
             <div class="range"><div class="ctrl age"><input type="number" id="want-age-min" inputmode="numeric" aria-label="원하는 상대 최소 나이 (한국 나이)" aria-describedby="want-age-min-y"><span class="suffix">살 <b id="want-age-min-y"></b></span></div><span aria-hidden="true">~</span><div class="ctrl age"><input type="number" id="want-age-max" inputmode="numeric" aria-label="원하는 상대 최대 나이 (한국 나이)" aria-describedby="want-age-max-y"><span class="suffix">살 <b id="want-age-max-y"></b></span></div></div>
             <p class="help" id="want-age-h"></p>
           </div>
@@ -356,16 +416,16 @@ td.hl{color:var(--accent);font-weight:700}
           <p class="swipe">옆으로 넘기면 10단계를 모두 볼 수 있어요</p>
           <p class="face-desc" id="want-looks-d"></p>
         </div>
-        <div class="row stack">
+        <div class="row stack spec">
           <div class="field"><label for="want-income">연봉</label><select id="want-income"></select><p class="help" id="want-income-h"></p></div>
           <div class="field"><label for="want-assets">순자산</label><select id="want-assets"></select><p class="help" id="want-assets-h"></p></div>
         </div>
-        <div class="field">
+        <div class="field spec">
           <div class="lab"><span id="want-jobs-l">직업 (여러 개 선택 가능)</span><button type="button" class="anybtn" id="want-jobs-any" aria-pressed="false">상관없음</button></div>
           <div class="pyr" id="want-jobs" role="group" aria-labelledby="want-jobs-l"></div>
           <p class="help" id="want-jobs-h"></p>
         </div>
-        <div class="row stack">
+        <div class="row stack spec">
           <div class="field"><label for="want-edu">학력</label><select id="want-edu"></select></div>
           <div class="field"><label for="want-fam">집안</label><select id="want-fam"></select></div>
         </div>
@@ -373,7 +433,7 @@ td.hl{color:var(--accent);font-weight:700}
     </form>
 
     <aside class="result" id="result" aria-live="polite">
-      <div class="slip-head"><span>메타인지 판정지</span><span class="num" id="slipNo"></span></div>
+      <div class="slip-head"><span>메타인지 판정지 · <span id="slipMode">결혼</span></span><span class="num" id="slipNo"></span></div>
       <div class="verdict" id="verdict">
         <span class="vchip" id="vChip"></span>
         <h2 id="vTitle"></h2>
@@ -413,14 +473,14 @@ td.hl{color:var(--accent);font-weight:700}
         <h3>이성이 보는 나의 무기와 약점</h3>
         <div class="sw"><div><h4>무기</h4><ul id="strong"></ul></div><div><h4>약점</h4><ul id="weak"></ul></div></div>
       </div>
-      <p class="slip-foot">가상 미혼 남녀 각 6만 명 시뮬레이션 기준이에요. <a href="#method">계산 방식 보기</a></p>
+      <p class="slip-foot"><span id="slipFoot">가상 남녀 각 6만 명 시뮬레이션 기준이에요.</span> <a href="#method">계산 방식 보기</a></p>
     </aside>
   </div>
   <p class="disclaimer">재미와 자기 객관화를 위한 시뮬레이션이에요. 통계와 결혼시장의 평균적인 선호를 단순하게 만든 추정치라서, 성격이나 가치관, 대화가 잘 통하는지처럼 실제로 가장 중요한 매력은 숫자에 담기지 않아요.</p>
   </main>
 
   <section class="method view" id="view-method" aria-labelledby="h-method" hidden>
-    <a class="back" href="#app">← 판정하러 돌아가기</a>
+    <a class="back" href="#marry">← 판정하러 돌아가기</a>
     <header>
       <h2 id="h-method" tabindex="-1">어떻게 계산하나요</h2>
       <p>통계 분포대로 가상의 미혼 남성과 여성을 6만 명씩 만들어 두고, 이성이 실제로 중요하게 보는 항목에 가중치를 줘서 모두에게 점수를 매겨요. 그 안에서 나의 순위와, 내 기준을 겨우 통과하는 사람의 순위를 비교해 판정해요.</p>
@@ -507,6 +567,17 @@ td.hl{color:var(--accent);font-weight:700}
         <p class="sub">나이차 가감점은 닮은꼴 감점과 같은 정규분포 점수 단위로 실질 위치에 더하고 빼요. 키 조건 감점과 남자 나이 감점은 종합 점수(100점 만점)에서 바로 빼요.</p>
       </article>
       <article class="card wide">
+        <h3>연애 탭은 이렇게 계산해요</h3>
+        <div class="wcols">
+          <div><h4>여자가 남자를 볼 때</h4><div class="wbars" id="wDM"></div></div>
+          <div><h4>남자가 여자를 볼 때</h4><div class="wbars" id="wDF"></div></div>
+        </div>
+        <p>연애에서는 경제력·직업·학력·집안을 보지 않고 외모·키·나이만으로 순위를 매겨요. 다만 이미 결혼한 사람은 만날 수 없으니, 가상 인원마다 아직 미혼일 확률을 붙여요. 미혼 확률은 나이대별 미혼율(통계청)에서 시작해서, 결혼 시장 순위가 높을수록(외모·키에 경제력·직업·집안까지 좋을수록) 일찍 결혼한다고 보고 낮췄어요. 그래서 키 크고 외모는 괜찮지만 스펙이 평범한 사람은 연애 탭에서 더 많이 남아 있어요.</p>
+        <div class="tbl-wrap"><table id="singleTbl"><thead><tr><th>한국 나이</th><th>남자 미혼율</th><th>결혼 시장 상위 20% 남자</th><th>여자 미혼율</th><th>결혼 시장 상위 20% 여자</th></tr></thead><tbody></tbody></table></div>
+        <p><b>기혼 감점.</b> 원하는 나이대에서 내 조건을 갖춘 사람 중 미혼 비율이 85%보다 낮을수록 실질 위치를 깎아요. 50%면 0.27, 30%면 0.52, 15%면 0.87만큼(정규분포 점수) 깎고 최대 1.0까지예요. 나이가 많은 상대를 원할수록, 기준이 높을수록 감점이 커져요.</p>
+        <p class="sub">외모 닮은꼴 감점, 나이차 가감점, 여자의 키 조건 감점은 결혼 탭과 똑같이 적용해요. 연애 탭의 남자 나이 점수는 32살까지 같고 그 뒤로 한 살마다 5점씩 내려가요.</p>
+      </article>
+      <article class="card wide">
         <h3>출처</h3>
         <div class="sources">
           <a href="https://www.insight.co.kr/news/404206" target="_blank" rel="noopener">제8차 한국인 인체치수조사 연령별 평균 키 (인사이트)</a>
@@ -516,11 +587,13 @@ td.hl{color:var(--accent);font-weight:700}
           <a href="https://www.korea.kr/briefing/pressReleaseView.do?newsId=156745446" target="_blank" rel="noopener">2024년 임금근로일자리 소득 결과 (국가데이터처)</a>
           <a href="https://jeongil13579.com/%ED%98%84%EC%8B%A4%EC%A0%81%EC%9D%B8-30%EB%8C%80-%EC%A7%81%EC%9E%A5%EC%9D%B8-%EC%9B%94%EA%B8%89-%EC%96%B4%EB%94%94%EA%B9%8C%EC%A7%80-%EB%B2%8C%EC%96%B4%EC%95%BC-%ED%95%A0%EA%B9%8C" target="_blank" rel="noopener">국세청 근로소득 백분위 정리 (2차 인용)</a>
           <a href="https://www.stevestewartwilliams.com/p/dating-ratings-how-men-and-women" target="_blank" rel="noopener">How men and women rate each other on dating sites (OkCupid 데이터 정리)</a>
+          <a href="https://mobile.newsis.com/view/NISX20251216_0003442538" target="_blank" rel="noopener">25~29세·30~34세 성별 미혼율, 국가데이터처 청년 삶의 질 2025 (뉴시스)</a>
+          <a href="https://www.clien.net/service/board/park/18839005" target="_blank" rel="noopener">2023 인구주택총조사 35~49세 성별 미혼율 (2차 인용)</a>
         </div>
       </article>
     </div>
     <p class="disclaimer">재미와 자기 객관화를 위한 시뮬레이션이에요. 통계와 결혼시장의 평균적인 선호를 단순하게 만든 추정치라서, 성격이나 가치관, 대화가 잘 통하는지처럼 실제로 가장 중요한 매력은 숫자에 담기지 않아요.</p>
-    <a class="back" href="#app">← 판정하러 돌아가기</a>
+    <a class="back" href="#marry">← 판정하러 돌아가기</a>
   </section>
 </div>
 
@@ -711,6 +784,17 @@ function heightDemandPts(h){if(h==null||h<177)return 0;return Math.min(15,h<180?
 const THIS_YEAR = new Date().getFullYear();
 const toIntl = k => k-1;
 const birthYY = k => String((THIS_YEAR-k+1)%100).padStart(2,'0')+'년생';
+// ----- dating tab -----
+const W_D = {M:{age:15,looks:50,height:35}, F:{age:35,looks:60,height:5}};
+const RADAR_D = [{key:'age',label:'나이',parts:['age']},{key:'looks',label:'외모',parts:['looks']},{key:'height',label:'키',parts:['height']}];
+// share never married by international age. 2024 (국가데이터처 청년 삶의 질 2025): 25~29 M 95.0 F 89.2, 30~34 M 74.7 F 58.0;
+// 2023 인구주택총조사: 35~39 M 44.5 F 28.0, 40~44 M 29.0 F 16.9, 45~49 M 22.2 F 11.2 (points at group midpoints)
+const SINGLE_PTS = {M:[[22,0.99],[27,0.95],[32,0.747],[37,0.445],[42,0.29],[47,0.222],[52,0.18]], F:[[22,0.98],[27,0.892],[32,0.58],[37,0.28],[42,0.169],[47,0.112],[52,0.09]]};
+function singleBase(g,a){const P=SINGLE_PTS[g];if(a<=P[0][0])return P[0][1];for(let k=1;k<P.length;k++){if(a<=P[k][0]){const[x0,y0]=P[k-1],[x1,y1]=P[k];return y0+(y1-y0)*(a-x0)/(x1-x0);}}return P[P.length-1][1];}
+// people ranked higher on the marriage market marry earlier
+const SINGLE_SKEW = 1.6;
+function singleProb(g,a,rank){return Math.pow(singleBase(g,a),Math.exp(SINGLE_SKEW*(rank/100-0.5)));}
+function marriedPenalty(avail){return Math.min(1,Math.max(0,0.5*Math.log(0.85/Math.max(0.01,avail))));}
 const other = g => g==='M'?'F':'M';
 const word = g => g==='M'?'남성':'여성';
 
@@ -765,6 +849,8 @@ function heightScore(g,h){
 }
 function simAxes(g,ds){const w=W[g];const a=(ds.income*w.income+ds.assets*w.assets+ds.job*w.job+ds.edu*w.edu)/(w.income+w.assets+w.job+w.edu);return{looks:ds.looks,ability:a,family:ds.family};}
 function z100(v){return invNorm(Math.min(0.995,Math.max(0.005,v/100)));}
+function ageScoreD(g,a){if(g==='F')return ageScore('F',a);const k=a+1;return k<=33?90:Math.max(5,90-5*(k-33));}
+function weightedD(g,ds){const w=W_D[g];return(w.age*ds.age+w.looks*ds.looks+w.height*ds.height)/100;}
 function weighted(g,ds){const w=W[g];let t=0;for(const k in w)t+=w[k]*ds[k];return t/100;}
 function radarOf(g,ds){return RADAR.map(ax=>{let s=0,w=0;for(const p of ax.parts){s+=ds[p]*W[g][p];w+=W[g][p];}return s/w;});}
 
@@ -797,7 +883,11 @@ async function buildPool(g,seed){
   }
   const sTot=Float32Array.from(total).sort();
   const rank=new Float32Array(N);for(let i=0;i<N;i++)rank[i]=pct(sTot,total[i]);
-  return {g,age,h,inc,ast,looks,job,edu,fam,incP,astP,total,rank,sInc,sAst,sTot};
+  const wd=W_D[g],totalD=new Float32Array(N),single=new Float32Array(N);
+  for(let i=0;i<N;i++){totalD[i]=(wd.age*ageScoreD(g,age[i])+wd.looks*LOOKS_SC[g][looks[i]-1]+wd.height*heightScore(g,h[i]))/100;single[i]=singleProb(g,age[i],rank[i]);}
+  const sTotD=Float32Array.from(totalD).sort();
+  const rankD=new Float32Array(N);for(let i=0;i<N;i++)rankD[i]=pct(sTotD,totalD[i]);
+  return {g,age,h,inc,ast,looks,job,edu,fam,incP,astP,total,rank,sInc,sAst,sTot,totalD,sTotD,rankD,single};
 }
 function dimsOfPool(pool,i){const g=pool.g;return{age:ageScore(g,pool.age[i]),looks:LOOKS_SC[g][pool.looks[i]-1],height:heightScore(g,pool.h[i]),income:pool.incP[i],assets:pool.astP[i],job:JOB_SC[g][pool.job[i]],edu:EDU_SC[pool.edu[i]],family:FAM_SC[pool.fam[i]]};}
 // income/assets percentile among people of the same age (the pool's age trend is removed analytically)
@@ -815,9 +905,9 @@ function fmtOneIn(p){if(p<=0)return '해당자 거의 없음';const k=1/p;if(k<2
 
 /* ---------- state & form ---------- */
 const $=s=>document.querySelector(s);
-const state={gender:'M',edited:false,me:null,want:null};
+const state={gender:'M',mode:'marry',edited:false,me:null,want:null};
 const STORE='metacognition-v7';
-function save(){try{localStorage.setItem(STORE,JSON.stringify({gender:state.gender,me:state.me,want:state.want}));}catch(e){}}
+function save(){try{localStorage.setItem(STORE,JSON.stringify({gender:state.gender,mode:state.mode,me:state.me,want:state.want}));}catch(e){}}
 function load(){try{const s=JSON.parse(localStorage.getItem(STORE)||'null');if(s&&s.me&&s.want&&(s.gender==='M'||s.gender==='F')&&JOBS[s.me.job]&&s.me.looksAns&&typeof s.me.looksAns==='object'&&Array.isArray(s.want.jobs)&&s.want.jobs.every(k=>JOBS[k]))return s;}catch(e){}return null;}
 
 function opt(sel,items,value){sel.innerHTML=items.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');sel.value=value==null?'':String(value);}
@@ -960,6 +1050,52 @@ function evaluate(){
   res.bottle=conds.map((c,k)=>({label:c.label,mult:(pass+only[k])/Math.max(pass,0.5)})).filter(b=>b.mult>=1.15).sort((a,b)=>b.mult-a.mult).slice(0,3);
   return res;
 }
+function evaluateDate(){
+  const g=state.gender,pg=other(g),me=state.me,w=state.want;
+  const myPool=pools[g],tp=pools[pg];
+  const md={age:ageScoreD(g,toIntl(me.age)),looks:dimsOfMe(g,me,myPool).looks,height:heightScore(g,me.height)};
+  const myTotal=weightedD(g,md),myRank=pct(myPool.sTotD,myTotal);
+  const conds=[];
+  if(w.height!=null)conds.push({f:'want-height',label:`키 ${w.height}cm 이상`,t:i=>tp.h[i]>=w.height});
+  if(w.looks!=null)conds.push({f:'want-looks',label:`외모 ${w.looks}단계 이상`,t:i=>tp.looks[i]<=w.looks});
+  const C=conds.length,only=new Float64Array(C),marg=new Float64Array(C);
+  const aMin=toIntl(w.ageMin),aMax=toIntl(w.ageMax);
+  const qual=new Int32Array(N);let pass=0,ageCount=0,passW=0,ageW=0;
+  for(let i=0;i<N;i++){
+    const a=tp.age[i];if(a<aMin||a>aMax)continue;ageCount++;
+    const s1=tp.single[i];ageW+=s1;
+    let fails=0,fi=-1;
+    for(let k=0;k<C;k++){if(conds[k].t(i))marg[k]+=s1;else{fails++;fi=k;}}
+    if(fails===0){qual[pass++]=i;passW+=s1;}else if(fails===1)only[fi]+=s1;
+  }
+  const res={g,pg,mode:'date',myRank,ageCount,pass,conds,marg,matched:[],myAgePen:0};
+  if(!ageCount)return res;
+  res.availAll=ageW/ageCount;
+  let rarity=passW/ageCount,estimated=false;
+  if(pass===0){rarity=res.availAll;for(let k=0;k<C;k++)rarity*=marg[k]/Math.max(ageW,1e-9);estimated=true;}
+  res.rarity=rarity;res.estimated=estimated;
+  const step=Math.max(1,Math.floor(pass/6000)),ranks=[],lk=[],rad=RADAR_D.map(()=>[]);
+  for(let q=0;q<pass;q+=step){const i=qual[q];ranks.push(tp.rankD[i]);const ds={age:ageScoreD(pg,tp.age[i]),looks:LOOKS_SC[pg][tp.looks[i]-1],height:heightScore(pg,tp.h[i])};lk.push(ds.looks);RADAR_D.forEach((ax,k)=>rad[k].push(ds[ax.key]));}
+  res.targetRank=pass?quantile(ranks,0.25):99.6;
+  res.themRadar=pass?rad.map(median):RADAR_D.map(()=>95);
+  res.myRadar=RADAR_D.map(ax=>md[ax.key]);
+  const themL=pass?quantile(lk,0.25):(w.looks!=null?LOOKS_SC[pg][w.looks-1]:50),dz=z100(themL)-z100(md.looks);
+  res.sim=[{label:'외모',me:md.looks,them:themL,dz,p:Math.max(0,dz-SIM_TOL)*SIM_K}];
+  res.penalty=Math.min(SIM_CAP,res.sim[0].p);
+  res.ageAdj=ageGapAdj(g,me.age,w);
+  const pick=[],hPts=g==='F'?heightDemandPts(w.height):0;
+  if(hPts){const k=conds.findIndex(c=>c.f==='want-height');pick.push({label:'키 조건',text:`${w.height}cm 이상${k>=0?` · 미혼 남성 ${fmtShare(marg[k]/ageW)}만 해당`:''}`,pts:hPts});}
+  res.pick=pick;res.pickPen=hPts;
+  const baseRank=hPts?pct(myPool.sTotD,myTotal-hPts):myRank;
+  res.avail=pass?passW/pass:res.availAll;
+  res.marPen=marriedPenalty(res.avail);
+  res.effZ=zOf(baseRank)-res.penalty+res.ageAdj.reduce((t,x)=>t+x.v,0)-res.marPen;
+  res.effRank=100*Phi(res.effZ);
+  let num=0,den=0;for(let q=0;q<pass;q++){const i=qual[q],s1=tp.single[i];den+=s1;if(tp.rankD[i]<=res.effRank+5)num+=s1;}
+  res.realistic=den?num/den:0;
+  res.bottle=conds.map((c,k)=>({label:c.label,mult:(passW+only[k])/Math.max(passW,0.5)})).filter(b=>b.mult>=1.15).sort((a,b)=>b.mult-a.mult).slice(0,3);
+  return res;
+}
 function verdictOf(gap){
   if(gap>=0.8)return{chip:'구름 위',title:'눈이 매우 높아요',tone:'var(--p-high)',line:'원하는 상대가 나보다 한참 위에 있어요.'};
   if(gap>=0.3)return{chip:'상향 지원',title:'눈이 높은 편이에요',tone:'var(--p-high)',line:'조금 위를 보고 있어요. 될 수는 있지만 경쟁이 세요.'};
@@ -969,21 +1105,22 @@ function verdictOf(gap){
 }
 
 /* ---------- rendering ---------- */
-function drawRadar(a,b){
+function drawRadar(a,b,AX,WW){
+  AX=AX||RADAR;WW=WW||W;const n=AX.length;
   const svg=$('#radar'),cx=180,cy=152,R=96,ns='http://www.w3.org/2000/svg';
-  const pt=(k,v)=>{const ang=-Math.PI/2+k*Math.PI/3;return[cx+Math.cos(ang)*R*v/100,cy+Math.sin(ang)*R*v/100];};
+  const pt=(k,v)=>{const ang=-Math.PI/2+k*2*Math.PI/n;return[cx+Math.cos(ang)*R*v/100,cy+Math.sin(ang)*R*v/100];};
   const poly=vals=>vals.map((v,k)=>pt(k,Math.max(3,v)).map(n=>n.toFixed(1)).join(',')).join(' ');
   let s='';
-  [25,50,75,100].forEach(v=>{s+=`<polygon points="${poly([v,v,v,v,v,v])}" fill="none" stroke="var(--panel-line)" stroke-width="1"/>`;});
-  RADAR.forEach((ax,k)=>{const[x,y]=pt(k,100);s+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--panel-line)" stroke-width="1"/>`;});
+  [25,50,75,100].forEach(v=>{s+=`<polygon points="${poly(Array(n).fill(v))}" fill="none" stroke="var(--panel-line)" stroke-width="1"/>`;});
+  AX.forEach((ax,k)=>{const[x,y]=pt(k,100);s+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--panel-line)" stroke-width="1"/>`;});
   s+=`<polygon points="${poly(b)}" fill="var(--panel-fg)" fill-opacity="0.06" stroke="var(--panel-fg)" stroke-width="1.6" stroke-dasharray="4 4"/>`;
   s+=`<polygon points="${poly(a)}" fill="var(--p-accent)" fill-opacity="0.28" stroke="var(--p-accent)" stroke-width="2"/>`;
   a.forEach((v,k)=>{const[x,y]=pt(k,Math.max(3,v));s+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.2" fill="var(--p-accent)"/>`;});
   const g=state.gender,pg=other(g);
-  RADAR.forEach((ax,k)=>{
+  AX.forEach((ax,k)=>{
     const[x,y]=pt(k,124);const anchor=Math.abs(x-cx)<4?'middle':(x>cx?'start':'end');
-    const wm=ax.parts.reduce((t,p)=>t+W[g][p],0),wt=ax.parts.reduce((t,p)=>t+W[pg][p],0);
-    const dy=k===0?-12:(k===3?6:-2);
+    const wm=ax.parts.reduce((t,p)=>t+WW[g][p],0),wt=ax.parts.reduce((t,p)=>t+WW[pg][p],0);
+    const dy=k===0?-12:(y>cy+60?6:-2);
     s+=`<text x="${x.toFixed(1)}" y="${(y+dy).toFixed(1)}" text-anchor="${anchor}" class="ax" fill="var(--panel-fg)" font-size="12.5" font-weight="700" font-family="IBM Plex Sans KR, sans-serif">${ax.label}</text>`;
     s+=`<text x="${x.toFixed(1)}" y="${(y+dy+15).toFixed(1)}" text-anchor="${anchor}" class="wt" fill="var(--panel-muted)" font-size="10.5" font-family="IBM Plex Sans KR, sans-serif">${wm}·${wt}</text>`;
   });
@@ -1004,7 +1141,9 @@ function scheduleRender(){clearTimeout(renderTimer);renderTimer=setTimeout(rende
 function render(){
   clearTimeout(renderTimer);
   if(!pools){showLoading();return;}
-  const r=evaluate(),g=r.g,pg=r.pg,w=state.want;
+  const dating=state.mode==='date';
+  const r=dating?evaluateDate():evaluate(),g=r.g,pg=r.pg,w=state.want;
+  const AX=dating?RADAR_D:RADAR,WW=dating?W_D:W;
   helpers();
   slipCounter++;$('#slipNo').textContent=`No. ${String(slipCounter).padStart(3,'0')}`;
   const res=$('#result'),mbar=$('#mbar');
@@ -1019,42 +1158,47 @@ function render(){
   const gap=zOf(r.targetRank)-r.effZ;
   const v=verdictOf(gap);
   const pen=Math.abs(r.effZ-zOf(r.myRank))>0.02, topSim=[...r.sim].sort((a,b)=>b.p-a.p)[0];
-  const reasons=[];if(r.penalty>0.02)reasons.push(`${topSim.label} 차이`);r.ageAdj.forEach(x=>reasons.push(x.key==='young'?'5살 이상 연하 희망':'6살 이상 연상 허용'));if(r.pickPen>0.02)reasons.push('키 기준이 까다로움');
+  const reasons=[];if(r.penalty>0.02)reasons.push(`${topSim.label} 차이`);r.ageAdj.forEach(x=>reasons.push(x.key==='young'?'5살 이상 연하 희망':'6살 이상 연상 허용'));if(r.pickPen>0.02)reasons.push('키 기준이 까다로움');if(dating&&r.marPen>0.02)reasons.push('그 나이대 기혼 비율');
   res.style.setProperty('--tone',v.tone);mbar.style.setProperty('--tone',v.tone);
   $('#vChip').textContent=v.chip;$('#vTitle').textContent=v.title;
-  $('#vLead').innerHTML=`${word(g)} 중 나는 <b>${fmtTop(r.myRank)}</b>, 내 기준을 아슬아슬하게 통과하는 ${word(pg)}은 <b>${fmtTop(r.targetRank)}</b>예요. ${v.line}`+(pen?` 가감점(${reasons.join(', ')})을 반영한 실질 위치는 <b>${fmtTop(r.effRank)}</b>예요.`:'');
+  $('#vLead').innerHTML=`${dating?'연애 시장에서 ':''}${word(g)} 중 나는 <b>${fmtTop(r.myRank)}</b>, 내 기준을 아슬아슬하게 통과하는 ${word(pg)}은 <b>${fmtTop(r.targetRank)}</b>예요. ${v.line}`+(pen?` 가감점(${reasons.join(', ')})을 반영한 실질 위치는 <b>${fmtTop(r.effRank)}</b>예요.`:'');
   const pm=posOf(r.effRank),pt=posOf(r.targetRank);
   placePin($('#pinMe'),pm);placePin($('#pinThem'),pt);
   const raw=$('#pinRaw');raw.hidden=!pen;raw.style.left=posOf(r.myRank)+'%';
   $('#rSpan').style.left=Math.min(pm,pt)+'%';$('#rSpan').style.width=Math.abs(pt-pm)+'%';
   $('#sMe').textContent=fmtTop(r.myRank);$('#sMeSub').textContent=pen?`가감점 반영 후 ${fmtTop(r.effRank)}`:`${word(g)} 중`;
   $('#sThem').textContent=fmtTop(r.targetRank);$('#sThemSub').textContent=r.pass?(r.matched.length?'같은 수준 조건은 빼고 계산':'조건 충족자 하위 25% 지점'):'충족자가 거의 없어 최상위로 봤어요';
-  if(!r.conds.length){$('#sRare').textContent='전원';$('#sRareSub').textContent='나이 외 조건 없음';}
+  if(dating){$('#sRare').textContent=fmtShare(r.rarity);$('#sRareSub').textContent=`${w.ageMin}~${w.ageMax}살 ${word(pg)} 중 미혼${r.conds.length?'이면서 조건 충족':''}${r.estimated?' (추정)':''} · ${fmtOneIn(r.rarity)}`;}
+  else if(!r.conds.length){$('#sRare').textContent='전원';$('#sRareSub').textContent='나이 외 조건 없음';}
   else{$('#sRare').textContent=fmtShare(r.rarity);$('#sRareSub').textContent=`${w.ageMin}~${w.ageMax}살 ${word(pg)} 중${r.estimated?' (추정)':''} · ${fmtOneIn(r.rarity)}`;}
   const real=r.realistic;
   if(!r.conds.length&&gap<0.3){$('#rReal').innerHTML=`나이 말고는 조건을 걸지 않았어요. 조건을 넣으면 내 눈높이가 더 정확하게 보여요.`;}
   else if(!r.pass){$('#rReal').innerHTML=`시뮬레이션 6만 명 중에 조건을 모두 갖춘 ${word(pg)}이 한 명도 없었어요. 조건 하나를 내려 보세요.`;}
+  else if(dating){$('#rReal').innerHTML=`조건을 갖춘 ${word(pg)} 중 아직 미혼은 약 <b>${Math.round(r.avail*100)}%</b>예요. 그중 나와 체급이 비슷하거나 아래인 사람은 <b>${Math.round(real*100)}%</b>라, 이 나이대 ${word(pg)} 전체로 따지면 <b>${fmtShare(real*r.rarity)}</b>만 현실적인 후보예요.`;}
   else{$('#rReal').innerHTML=`조건을 모두 갖춘 ${word(pg)} 중 나와 체급이 비슷하거나 아래인 사람은 <b>${Math.round(real*100)}%</b>예요. 전체 ${word(pg)}으로 따지면 <b>${fmtShare(real*r.rarity)}</b>만 현실적인 후보예요.`;}
   $('#sim').innerHTML=r.sim.map(x=>{const st=x.dz>SIM_TOL?(x.p>=0.25?['high','감점 큼']:['high','감점']):(x.dz<-SIM_TOL?['low','내가 더 높음']:['fit','비슷함']);return `<li><span class="sl">${x.label}</span><span class="sv">나 ${fmtTop(x.me)} · 기준선 ${fmtTop(x.them)}</span><span class="st st-${st[0]}">${st[1]}</span></li>`;}).join('')
     +(r.myAgePen>0?`<li><span class="sl">내 나이</span><span class="sv">${state.me.age}살 · 종합 점수 −${r.myAgePen.toFixed(1)}점 반영</span><span class="st st-high">감점</span></li>`:'')
     +r.ageAdj.map(x=>`<li><span class="sl">${x.label}</span><span class="sv">${x.text}</span><span class="st st-${x.v<0?'high':'fit'}">${x.v<0?'감점':'가산점'}</span></li>`).join('')
     +r.pick.map(x=>`<li><span class="sl">${x.label}</span><span class="sv">${x.text}</span><span class="st st-high">−${x.pts}점</span></li>`).join('')
+    +(dating?`<li><span class="sl">기혼 비율</span><span class="sv">${w.ageMin}~${w.ageMax}살${r.conds.length?' 조건 충족':''} ${word(pg)} 중 미혼 약 ${Math.round(r.avail*100)}%</span><span class="st st-${r.marPen>=0.3?'high':(r.marPen>0.02?'high':'fit')}">${r.marPen>=0.3?'감점 큼':(r.marPen>0.02?'감점':'괜찮음')}</span></li>`:'')
     +r.matched.map(c=>`<li><span class="sl">${c.f==='want-fam'?'집안 조건':'학력 조건'}</span><span class="sv">${c.label.replace(/^(집안|학력) /,'')} · ${c.same?'나와 비슷한 집안이라':'나도 같은 수준이라'} 눈높이 계산에서 뺐어요</span><span class="st st-fit">제외</span></li>`).join('');
-  $('#simNote').textContent=pen?`가감점을 반영하면 실질 위치가 ${fmtTop(r.myRank)}에서 ${fmtTop(r.effRank)}로 ${r.effRank<r.myRank?'내려가요':'올라가요'}. 상대는 항목마다 자기와 비슷한 사람을 찾고, 나이차가 클수록 상대 쪽 선택지가 줄기 때문이에요.`:'외모·능력·집안이 원하는 상대와 크게 차이 나지 않고, 나이차 가감점도 없어요.';
+  $('#simNote').textContent=dating?(pen?`가감점을 반영하면 실질 위치가 ${fmtTop(r.myRank)}에서 ${fmtTop(r.effRank)}로 ${r.effRank<r.myRank?'내려가요':'올라가요'}. 외모 차이와 나이차, 그리고 원하는 나이대의 괜찮은 사람이 이미 결혼한 비율을 반영했어요.`:'외모 차이와 나이차 가감점이 없고, 원하는 나이대에 미혼도 충분해요.'):pen?`가감점을 반영하면 실질 위치가 ${fmtTop(r.myRank)}에서 ${fmtTop(r.effRank)}로 ${r.effRank<r.myRank?'내려가요':'올라가요'}. 상대는 항목마다 자기와 비슷한 사람을 찾고, 나이차가 클수록 상대 쪽 선택지가 줄기 때문이에요.`:'외모·능력·집안이 원하는 상대와 크게 차이 나지 않고, 나이차 가감점도 없어요.';
   const wah=$('#want-age-h');if(!wah.classList.contains('err'))wah.textContent=r.ageAdj.length?r.ageAdj.map(x=>x.v<0?`나보다 ${state.me.age-w.ageMax}살 이상 어린 상대만 원해서 감점돼요`:`${w.ageMax-state.me.age}살 연상까지 열어 둬서 가산점이 있어요`).join(' '):'';
   const so=$('#want-fam option[value="same"]');if(so)so.textContent=`나와 비슷한 집안 (${famSimilar(state.me.fam).text})`;
   const mah=$('#me-age-h');if(!mah.classList.contains('err'))mah.textContent=r.myAgePen>0?`38살부터 감점 · 종합 점수 −${r.myAgePen.toFixed(1)}점`:'';
-  drawRadar(r.myRadar,r.themRadar);
+  drawRadar(r.myRadar,r.themRadar,AX,WW);
   const bl=$('#bottle');
   if(!r.conds.length)bl.innerHTML=`<li class="empty">나이 외에는 걸어 둔 조건이 없어요.</li>`;
   else if(!r.bottle.length)bl.innerHTML=`<li class="empty">후보를 크게 줄이는 조건은 없어요.</li>`;
   else bl.innerHTML=r.bottle.map(b=>{const width=Math.min(100,Math.log(b.mult)/Math.log(60)*100);const m=b.mult>=100?'100배 이상':(b.mult>=10?`${Math.round(b.mult)}배`:`${b.mult.toFixed(1)}배`);return `<li><span>${b.label}</span><span class="x">${m}</span><span class="bar"><i style="width:${width.toFixed(1)}%"></i></span></li>`;}).join('')+`<li class="empty">이 조건 하나만 빼도 후보가 이만큼 늘어나요.</li>`;
-  const contrib=RADAR.map((ax,k)=>{const wt=ax.parts.reduce((t,p)=>t+W[g][p],0);return{label:ax.label,val:r.myRadar[k],c:(r.myRadar[k]-50)*wt};});
+  const contrib=AX.map((ax,k)=>{const wt=ax.parts.reduce((t,p)=>t+WW[g][p],0);return{label:ax.label,val:r.myRadar[k],c:(r.myRadar[k]-50)*wt};});
   const strong=contrib.filter(c=>c.c>0).sort((a,b)=>b.c-a.c).slice(0,2);
   const weak=contrib.filter(c=>c.c<0).sort((a,b)=>a.c-b.c).slice(0,2);
   const li=c=>`<li>${c.label}<span>${fmtTop(c.val)}</span></li>`;
   $('#strong').innerHTML=strong.length?strong.map(li).join(''):'<li>뚜렷한 무기가 아직 없어요</li>';
   $('#weak').innerHTML=weak.length?weak.map(li).join(''):'<li>눈에 띄는 약점이 없어요</li>';
+  $('#slipMode').textContent=dating?'연애':'결혼';
+  $('#slipFoot').textContent=dating?'가상 남녀 각 6만 명에 나이대별 미혼율(통계청)을 반영했어요.':'가상 남녀 각 6만 명 시뮬레이션 기준이에요.';
   $('#mTitle').textContent=v.title;$('#mSub').textContent=`나 ${fmtTop(pen?r.effRank:r.myRank)} · 내 기준선 ${fmtTop(r.targetRank)}`;
 }
 
@@ -1062,6 +1206,9 @@ function render(){
 function renderMethod(){
   const bars=(g)=>{const w=W[g];const items=[['경제력',w.income+w.assets],['키',w.height],['외모',w.looks],['직업',w.job],['나이',w.age],['집안',w.family],['학력',w.edu]].sort((a,b)=>b[1]-a[1]);return items.map(([k,v])=>`<div class="wbar"><span>${k}</span><span class="b"><i style="width:${v/30*100}%"></i></span><span class="v">${v}%</span></div>`).join('');};
   $('#wM').innerHTML=bars('M');$('#wF').innerHTML=bars('F');
+  const barsD=g=>[['외모',W_D[g].looks],['나이',W_D[g].age],['키',W_D[g].height]].sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="wbar"><span>${k}</span><span class="b"><i style="width:${v/60*100}%"></i></span><span class="v">${v}%</span></div>`).join('');
+  $('#wDM').innerHTML=barsD('M');$('#wDF').innerHTML=barsD('F');
+  $('#singleTbl tbody').innerHTML=[26,28,30,32,34,36,38,40,42].map(k=>{const a=toIntl(k),f=v=>Math.round(v*100)+'%';return `<tr><td>${k}살</td><td>${f(singleBase('M',a))}</td><td class="hl">${f(singleProb('M',a,90))}</td><td>${f(singleBase('F',a))}</td><td class="hl">${f(singleProb('F',a,90))}</td></tr>`;}).join('');
   let rows='';for(let L=0;L<10;L++){rows+=`<tr><td>${L+1}단계 · ${LOOKS.label.F[L]===LOOKS.label.M[L]?LOOKS.label.M[L]:LOOKS.label.F[L]+'/'+LOOKS.label.M[L]}</td><td>상위 ${+cumTop(LOOKS.share.F,L).toFixed(1)}%</td><td class="hl">상위 ${+cumTop(LOOKS.share.M,L).toFixed(1)}%</td></tr>`;}
   $('#looksTbl tbody').innerHTML=rows;
   $('#looksCutTbl tbody').innerHTML=Array.from({length:10},(_,k)=>{const f=g=>k<9?`${LOOKS_CUT[g][k]}점 이상`:`${LOOKS_CUT[g][8]}점 미만`;return `<tr><td>${k+1}단계${k===0?' (캐스팅 제의나 대부분이 돌아봄 필수)':''}</td><td>${f('M')}</td><td>${f('F')}</td></tr>`;}).join('');
@@ -1081,6 +1228,14 @@ function renderMethodPools(){
 
 /* ---------- events ---------- */
 function markEdited(){if(!state.edited){state.edited=true;$('#exampleNote').hidden=true;}}
+function setMode(m){
+  state.mode=m==='date'?'date':'marry';
+  document.querySelector('.wrap').dataset.mode=state.mode;
+  document.querySelectorAll('.mode').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.mode===state.mode)));
+  $('#modeNote').hidden=state.mode!=='date';
+  document.querySelectorAll('.back').forEach(a=>a.setAttribute('href','#'+state.mode));
+}
+document.querySelectorAll('.mode').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.mode!==state.mode){location.hash='#'+b.dataset.mode;}}));
 function setGender(g,useExample){
   state.gender=g;
   const ex=JSON.parse(JSON.stringify(EXAMPLES[g]));state.me=ex.me;state.want=ex.want;
@@ -1104,23 +1259,27 @@ $('#want-jobs-any').addEventListener('click',()=>{state.want.jobs=[];paintJobs()
 $('#resetEx').addEventListener('click',()=>setGender(state.gender));
 
 /* hide the mobile bar while the verdict slip is on screen */
-let onMethod=false;
-try{const io=new IntersectionObserver(es=>{es.forEach(en=>{$('#mbar').hidden=onMethod||en.isIntersecting;});},{threshold:0.15});io.observe($('#result'));}catch(e){}
+let view='start';
+try{const io=new IntersectionObserver(es=>{es.forEach(en=>{$('#mbar').hidden=view!=='app'||en.isIntersecting;});},{threshold:0.15});io.observe($('#result'));}catch(e){}
 
 /* two views: the app (default) and #method */
 function route(){
-  const next=location.hash==='#method';
-  if(next===onMethod&&route.done){return;}
-  const changed=route.done;onMethod=next;route.done=true;
-  $('#view-app').hidden=onMethod;$('#view-method').hidden=!onMethod;$('#navlink').hidden=onMethod;
-  if(onMethod)$('#mbar').hidden=true;
-  if(changed){window.scrollTo(0,0);if(onMethod)$('#h-method').focus({preventScroll:true});}
+  const h=location.hash;
+  const next=h==='#method'?'method':((h==='#marry'||h==='#date')?'app':'start');
+  if(next==='app'){const m=h==='#date'?'date':'marry';if(m!==state.mode){setMode(m);render();save();}}
+  if(next===view&&route.done)return;
+  const changed=route.done;view=next;route.done=true;
+  $('#view-start').hidden=view!=='start';$('#view-app').hidden=view!=='app';$('#view-method').hidden=view!=='method';
+  $('#navlink').hidden=view==='method';
+  if(view!=='app')$('#mbar').hidden=true;
+  if(changed){window.scrollTo(0,0);if(view==='method')$('#h-method').focus({preventScroll:true});}
 }
 window.addEventListener('hashchange',route);
 
 /* ---------- boot ---------- */
 (function boot(){
   const saved=load();
+  setMode(saved&&saved.mode);
   if(saved){state.gender=saved.gender;state.me=saved.me;state.want=saved.want;if(!Array.isArray(state.want.jobs))state.want.jobs=[];state.edited=true;$('#exampleNote').hidden=true;writeForm();}
   else{const ex=JSON.parse(JSON.stringify(EXAMPLES.M));state.me=ex.me;state.want=ex.want;writeForm();}
   renderMethod();route();render();
