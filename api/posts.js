@@ -1,9 +1,10 @@
-// 메타인지 인증 게시판 API (Vercel Function + Upstash Redis)
+// 메타인지 인증 게시판 API (Vercel Function + Redis)
 // GET    /api/posts?mode=marry|date&g=M|F&after=<ts>&limit=20   최신순 목록
 // POST   /api/posts  {nick,msg,m,g,age,k,me,t,r,want}             인증 올리기 → {post, token}
 // POST   /api/posts  {action:'delete', id, token}                 내가 올린 글 지우기
 // 글은 p:<id> 에 JSON으로, 목록은 시간순 정렬 집합(pz:all, pz:m:<기준>, pz:g:<성별>, pz:mg:<기준><성별>)에 넣어요.
 import { createHash, randomBytes } from 'node:crypto';
+import { redis, secretSalt } from './_redis.js';
 
 const MAX_TS = 9999999999999;
 const ID_RE = /^(\d{13})-(marry|date)([MF])-([0-9a-f]{12})$/;
@@ -15,15 +16,6 @@ const LINK_RE = /(https?:\/\/|www\.|\.(com|net|org|kr|co|io|me|ly|gg|xyz|link|sh
 const sha = s => createHash('sha256').update(s).digest('hex');
 const kstDay = (t = Date.now()) => new Date(t + 9 * 3600e3).toISOString().slice(0, 10);
 
-async function redis(cmds) {
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) throw new Error('redis_not_configured');
-  const r = await fetch(`${url.replace(/\/$/, '')}/pipeline`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(cmds) });
-  if (!r.ok) throw new Error('redis_http_' + r.status);
-  const out = await r.json();
-  return out.map(x => { if (x && x.error) throw new Error('redis: ' + x.error); return x ? x.result : null; });
-}
 
 function send(res, status, body, headers = {}) {
   res.statusCode = status;
@@ -48,7 +40,7 @@ async function readBody(req) {
 
 function cleanText(v, max) {
   if (typeof v !== 'string') return '';
-  let s = v.normalize('NFC').replace(/[​-‏‪-‮⁠-⁯﻿]/g, '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
+  let s = v.normalize('NFC').replace(/[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g, '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
   s = Array.from(s).slice(0, max).join('');
   for (const w of BAD_WORDS) s = s.split(w).join('*'.repeat(Array.from(w).length));
   return s;
@@ -134,7 +126,7 @@ async function handleCreate(req, res, body) {
   if (want.some(w => LINK_RE.test(w))) return send(res, 400, { error: 'link', message: '링크나 연락처는 올릴 수 없어요.' });
 
   const now = Date.now();
-  const ipHash = sha(clientIp(req) + '|' + (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '').slice(-24)).slice(0, 32);
+  const ipHash = sha(clientIp(req) + '|' + secretSalt()).slice(0, 32);
   // one post per person per minute, and at most 30 posts a minute overall
   const minute = `rl:min:${Math.floor(now / 60000)}`;
   const [okIp, perMin] = await redis([['SET', `rl:ip:${ipHash}`, '1', 'NX', 'EX', '60'], ['INCR', minute], ['EXPIRE', minute, '120']]);

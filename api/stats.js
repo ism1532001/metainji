@@ -1,22 +1,15 @@
-// 메타인지 방문·공유 통계 API (Vercel Function + Upstash Redis)
+// 메타인지 방문·공유 통계 API (Vercel Function + Redis)
 // POST /api/stats  {e:'visit'|..., src?}   이벤트 1건 세기 (사이트가 보냄)
 // GET  /api/stats?days=30                   날짜별·전체 합계 (통계 페이지가 읽음)
 // 날짜별 합계는 st:d:<한국 날짜> 해시, 전체 합계는 st:total 해시에 있어요. 개인정보는 저장하지 않아요.
+import { redis } from './_redis.js';
+
 const EVENTS = new Set(['visit', 'new_visitor', 'verdict_marry', 'verdict_date', 'share_dialog', 'share_native', 'share_save', 'share_copy', 'shared_open', 'board_view']);
 const SOURCES = new Set(['instagram', 'naver', 'kakao', 'google', 'friend', 'direct', 'other']);
 const ORIGIN_RE = /^(https:\/\/metainji(-[a-z0-9-]+)?\.vercel\.app|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)$/;
 const BOT_RE = /bot|crawl|spider|slurp|preview|facebookexternalhit|kakaotalk-scrap|headless|lighthouse/i;
 const kstDay = (t = Date.now()) => new Date(t + 9 * 3600e3).toISOString().slice(0, 10);
 
-async function redis(cmds) {
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) throw new Error('redis_not_configured');
-  const r = await fetch(`${url.replace(/\/$/, '')}/pipeline`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(cmds) });
-  if (!r.ok) throw new Error('redis_http_' + r.status);
-  const out = await r.json();
-  return out.map(x => { if (x && x.error) throw new Error('redis: ' + x.error); return x ? x.result : null; });
-}
 
 function send(res, status, body, headers = {}) {
   res.statusCode = status;
