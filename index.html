@@ -572,10 +572,10 @@ const LOOKS_Q = {
     {id:'celeb',q:'예쁜 연예인을 닮았다는 말을 듣나요?',opts:[['거의 없어요',0],['가끔 들어요',0.5],['자주 들어요',1.5]]},
     {id:'nomakeup',q:'화장을 안 했거나 꾸미지 않은 날에도 예쁘다는 말을 듣나요?',opts:[['거의 없어요',0],['가끔 들어요',1],['자주 들어요',2]]},
     {id:'photo',q:'보정이나 필터 없이 찍은 사진은 어떤가요?',opts:[['실물보다 많이 아쉬워서 꼭 보정해요',-1],['보통이에요',0],['보정 없이도 잘 나온다는 말을 들어요',1]]},
-    {id:'impression',q:'첫인상은 주로 어떻다는 말을 듣나요?',opts:[['차갑다, 세 보인다, 피곤해 보인다',-0.5],['특별한 말은 없어요',0],['인상이 좋다, 순해 보인다',0.5]]},
+    {id:'impression',q:'첫인상은 주로 어떻다는 말을 듣나요?',opts:[['차갑다, 세 보인다, 피곤해 보인다',-1],['특별한 말은 없어요',-0.5],['인상이 좋다, 순해 보인다',0]]},
     {id:'feature',q:'이목구비에 대해 어떤 말을 듣나요?',opts:[['코·턱·눈 등 콕 집어 아쉽다는 부위가 있어요',-1],['특별한 말은 없어요',0],['이목구비가 또렷하다, 눈이 예쁘다',1]]},
     {id:'favor',q:'일상에서 남자들에게 이유 없는 호의(먼저 도와주기, 챙겨 주기, 가게에서 서비스 주기 등)를 받는 일이 잦은가요?',opts:[['거의 없어요',0],['가끔 있어요',0.5],['자주 있어요',1.5]]},
-    {id:'profile',q:'결혼정보회사나 소개팅 앱에 사진 프로필을 올렸을 때 반응은 어땠나요?',opts:[['신청이 적은 편이었어요',-1],['보통이었어요',0],['신청이 몰렸어요',1.5]]},
+    {id:'profile',q:'결혼정보회사나 소개팅 앱에 사진 프로필을 올렸을 때 반응은 어땠나요?',opts:[['신청이 적은 편이었어요',-2],['보통이었어요',-1],['신청이 몰렸어요',0]]},
     {id:'skin',q:'피부 상태는 어떤가요?',opts:[['트러블이나 흉터가 눈에 띄어요',-1.5],['보통이에요',0],['깨끗하다는 말을 자주 들어요',1]]},
     {id:'teeth',q:'치아 상태는 어떤가요?',opts:[['고르지 않거나 변색이 눈에 띄어요',-1],['괜찮아요',0]]},
     {id:'body',q:'체형은 어느 쪽에 가깝나요?',opts:[['날씬하고 관리된 편이에요. 비키니를 입어도 굴욕이 크게 없어요',0.5],['보통이에요',0],['통통한 편이에요',-2],['과체중이에요',-3.5],['비만이에요',-6]]},
@@ -888,7 +888,7 @@ function helpers(){
   const m=state.me;
   const ih=$('#me-income-h');if(!ih.classList.contains('err'))ih.textContent=`${fmtMan(m.income)} · ${m.age}살 ${word(state.gender)} 중 ${fmtTop(incPctAge(state.gender,toIntl(m.age),m.income))}`;
   const ah=$('#me-assets-h');if(!ah.classList.contains('err'))ah.textContent=`${fmtMan(m.assets)} · ${m.age}살 ${word(state.gender)} 중 ${fmtTop(astPctAge(state.gender,toIntl(m.age),m.assets))}`;
-  const hh=$('#me-height-h');if(!hh.classList.contains('err'))hh.textContent=state.gender==='M'?`남성 중 ${fmtTop(heightScore('M',m.height))}`:(m.height<158?'157cm 이하라 감점이 커요':(m.height>170?'171cm 이상이라 조금 감점돼요':'158~170cm는 감점이 없어요'));
+  const hh=$('#me-height-h');if(!hh.classList.contains('err'))hh.textContent=state.gender==='M'?`남성 중 ${fmtTop(heightScore('M',m.height))}`:(m.height<158?'157cm 이하라 감점이 커요':(m.height>170?'171cm 이상이라 조금 감점돼요':''));
   const ah2=$('#me-age-h');if(!ah2.classList.contains('err'))ah2.textContent='';
   $('#me-age-y').textContent=birthYY(m.age);
   $('#want-age-min-y').textContent=birthYY(state.want.ageMin);$('#want-age-max-y').textContent=birthYY(state.want.ageMax);
