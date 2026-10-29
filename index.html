@@ -116,9 +116,22 @@ input[aria-invalid="true"]{border-color:var(--accent)}
 .face-desc{font-size:.88rem;min-height:2.8em}
 .face-desc b{font-weight:700}
 .face-desc .pct{color:var(--accent);font-weight:600}
-.anybtn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:inherit;font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:999px;cursor:pointer}
+.anybtn{white-space:nowrap;flex:none;appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:inherit;font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:999px;cursor:pointer}
 .anybtn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .tip{font-size:.78rem;color:var(--muted)}
+.lqbox{border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.lqbox>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;min-height:48px}
+.lqbox>summary::-webkit-details-marker{display:none}
+.lqbox>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:14px}
+.lqs-t{font-weight:700;font-size:.92rem}
+.lqs-c{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.lqs-a{margin-left:auto;font-size:.82rem;font-weight:700;color:var(--accent);display:inline-flex;align-items:center;gap:6px}
+.lqs-a::after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .15s}
+.lqbox[open] .lqs-a::after{transform:rotate(-135deg) translateY(-2px)}
+.lqbox .cl,.lqbox[open] .op{display:none}.lqbox[open] .cl{display:inline}
+.lqbox[open]>summary{border-bottom:1px solid var(--line)}
+.lqbox>.tip,.lqbox>.lq{margin:14px 14px 0}
+.lqclose{appearance:none;display:block;width:calc(100% - 28px);margin:16px 14px 14px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-weight:600;font-size:.86rem;padding:10px;border-radius:10px;cursor:pointer}
 .lq{display:flex;flex-direction:column;gap:14px;counter-reset:lq}
 .lq fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0}
 .lq legend{padding:0;font-size:.9rem;font-weight:600;color:var(--ink);line-height:1.45}
@@ -128,6 +141,9 @@ input[aria-invalid="true"]{border-color:var(--accent)}
 .opt[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 .lres{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;align-items:center;background:var(--surface-2);border-radius:14px;padding:12px}
 .lres img{width:76px;aspect-ratio:5/8;object-fit:cover;object-position:50% 10%;border-radius:10px;display:block}
+.lres img.dim{opacity:.4;filter:grayscale(1)}
+.lqbox.todo{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.lqbox.todo .lqs-c{color:var(--accent);font-weight:700}
 .lres .k{font-size:.74rem;font-weight:700;color:var(--muted);letter-spacing:.04em}
 .lres .t{font-family:var(--display);font-weight:800;font-size:1.25rem;color:var(--accent);line-height:1.3}
 .lres .d{font-size:.84rem;color:var(--ink)}
@@ -135,6 +151,17 @@ input[aria-invalid="true"]{border-color:var(--accent)}
 
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+.pyr{display:flex;flex-direction:column;align-items:center;gap:6px}
+.tier{width:var(--w);max-width:100%;border-radius:12px;padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;background:var(--surface-2);background:color-mix(in srgb,var(--accent) var(--tint),var(--surface));border:1px solid var(--line)}
+.tier-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.tier-n{font-size:.84rem;font-weight:700;color:var(--ink)}
+.tier-n b{display:inline-block;min-width:2.4em;font-family:var(--display);font-weight:800;color:var(--accent);margin-right:4px}
+.tier-up{appearance:none;border:1px solid var(--accent);background:var(--surface);color:var(--accent);font:inherit;font-size:.76rem;font-weight:700;padding:4px 10px;border-radius:999px;cursor:pointer;min-height:30px}
+.tier-up[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.tier .chips{justify-content:center;gap:6px}
+.tier .chip{background:var(--surface)}
+.tier .chip[aria-pressed="true"]{background:var(--accent)}
+@media (max-width:600px){.tier{width:min(100%,var(--wm))}}
 .chip{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.86rem;padding:7px 13px;border-radius:999px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
 
@@ -295,9 +322,13 @@ td.hl{color:var(--accent);font-weight:700}
         </div>
         <div class="field">
           <div class="lab"><span id="me-looks-l">외모</span></div>
-          <p class="tip">사진을 직접 고르면 대부분 후하게 고르게 돼서, 질문에 답하면 단계가 자동으로 정해져요. 클럽·헌팅포차·소개팅앱 같은 가벼운 만남은 빼고 평소 일상 기준으로 답해 주세요. 답하지 않은 질문은 0점으로 계산해요.</p>
-          <div class="lq" id="me-looks-q"></div>
           <div class="lres" id="me-looks-res" aria-live="polite"></div>
+          <details class="lqbox" id="me-looks-box">
+            <summary><span class="lqs-t">외모 질문 <span id="me-looks-total">20</span>개에 답하기</span><span class="lqs-c" id="me-looks-count"></span><span class="lqs-a"><span class="op">펼치기</span><span class="cl">접기</span></span></summary>
+            <p class="tip">사진을 직접 고르면 대부분 후하게 고르게 돼서, 질문에 답하면 단계가 자동으로 정해져요. 클럽·헌팅포차·소개팅앱 같은 가벼운 만남은 빼고 평소 일상 기준으로 답해 주세요. 해당하는 경험이 없는 질문은 넘어가도 돼요. 답하지 않은 질문은 0점으로 계산해요.</p>
+            <div class="lq" id="me-looks-q"></div>
+            <button type="button" class="lqclose" id="me-looks-close">질문 접기</button>
+          </details>
         </div>
         <div class="row stack">
           <div class="field"><label for="me-income">연봉 (세전)</label><div class="ctrl"><input type="number" id="me-income" inputmode="numeric" min="0" step="100"><span class="suffix">만원</span></div><p class="help" id="me-income-h"></p></div>
@@ -330,8 +361,9 @@ td.hl{color:var(--accent);font-weight:700}
           <div class="field"><label for="want-assets">순자산</label><select id="want-assets"></select><p class="help" id="want-assets-h"></p></div>
         </div>
         <div class="field">
-          <div class="lab"><span id="want-jobs-l">직업군 (여러 개 고를 수 있어요, 안 고르면 상관없음)</span></div>
-          <div class="chips" id="want-jobs" role="group" aria-labelledby="want-jobs-l"></div>
+          <div class="lab"><span id="want-jobs-l">직업 (여러 개 선택 가능)</span><button type="button" class="anybtn" id="want-jobs-any" aria-pressed="false">상관없음</button></div>
+          <div class="pyr" id="want-jobs" role="group" aria-labelledby="want-jobs-l"></div>
+          <p class="help" id="want-jobs-h"></p>
         </div>
         <div class="row stack">
           <div class="field"><label for="want-edu">학력</label><select id="want-edu"></select></div>
@@ -404,7 +436,7 @@ td.hl{color:var(--accent);font-weight:700}
       </article>
       <article class="card">
         <h3>외모는 질문으로 재요</h3>
-        <p>본인 외모는 사진을 직접 고르지 않고 질문 10개에 답한 점수 합계로 정해요. 칭찬 한두 개로 높은 단계가 나오지 않도록, 여자는 단계마다 필요한 점수를 더 높게 잡았어요. 1단계(연예인급)는 캐스팅 제의를 받았거나 대부분이 돌아보는 경우에만 나와요. 원하는 상대의 외모는 지금처럼 사진으로 골라요.</p>
+        <p>본인 외모는 사진을 직접 고르지 않고 질문 20개에 답한 점수 합계로 정해요. 칭찬 한두 개로 높은 단계가 나오지 않도록, 여자는 단계마다 필요한 점수를 더 높게 잡았어요. 1단계(연예인급)는 캐스팅 제의를 받았거나 대부분이 돌아보는 경우에만 나와요. 원하는 상대의 외모는 지금처럼 사진으로 골라요.</p>
         <div class="tbl-wrap"><table id="looksCutTbl"><thead><tr><th>단계</th><th>남자 필요 점수</th><th>여자 필요 점수</th></tr></thead><tbody></tbody></table></div>
         <details class="lqd"><summary>남자 질문별 점수 보기</summary><div id="lqM"></div></details>
         <details class="lqd"><summary>여자 질문별 점수 보기</summary><div id="lqF"></div></details>
@@ -414,8 +446,8 @@ td.hl{color:var(--accent);font-weight:700}
       </article>
       <article class="card">
         <h3>직업은 15개로 나눴어요</h3>
-        <div class="tbl-wrap"><table id="jobTbl"><thead><tr><th>직업</th><th>남자일 때 점수</th><th>여자일 때 점수</th></tr></thead><tbody></tbody></table></div>
-        <p class="sub">이성이 보는 선호도를 100점 만점으로 매겼어요. 전문직 남자를 선호하는 여자가 많아서 남자는 전문직과 비전문직 사이를 크게 벌렸고, 의사는 따로 떼서 가장 높게 줬어요. 여자는 직업 간 차이를 작게 두고, 연봉이 높아 선호도가 오른 메이저 대기업을 전문직 바로 아래에 놓았어요.</p>
+        <div class="tbl-wrap"><table id="jobTbl"><thead><tr><th>직업</th><th>남자 급</th><th>남자 점수</th><th>여자 급</th><th>여자 점수</th></tr></thead><tbody></tbody></table></div>
+        <p class="sub">원하는 상대 직업은 의사급부터 일반급까지 5개 급으로 나눠 보여 주고, '이 급 이상 전체'로 한 번에 고를 수 있어요. 여자는 공무원·교사가 인기 있어서 대기업·금융과 같은 3급으로 묶었어요. 이성이 보는 선호도는 100점 만점으로 매겼어요. 전문직 남자를 선호하는 여자가 많아서 남자는 전문직과 비전문직 사이를 크게 벌렸고, 의사는 따로 떼서 가장 높게 줬어요. 여자는 직업 간 차이를 작게 두고, 연봉이 높아 선호도가 오른 메이저 대기업을 전문직 바로 아래에 놓았어요.</p>
       </article>
       <article class="card">
         <h3>키는 노력으로 바꿀 수 없는 희소 자원</h3>
@@ -439,6 +471,10 @@ td.hl{color:var(--accent);font-weight:700}
         <ul>
           <li>연봉: 국세청 근로소득(연간 근무자 중위 4,272만 원, 상위 10% 약 1억 57만 원)과 2024 임금근로일자리 통계(남성 월평균 442만 원)를 참고해, 만 33세 미혼 기준 남성 중위 4,600만 원, 여성 중위 3,700만 원으로 잡고 나이에 따라 오르게 했어요. 남성 풀 기준 연봉 7천만 원 이상은 <b class="num" id="inc7k"></b>, 1억 이상은 <b class="num" id="inc1e"></b>예요.</li>
           <li>자산: 만 33세 미혼 기준 남성 중위 9,000만 원, 여성 7,500만 원으로 잡고 연봉·집안과 함께 움직이게 했어요.</li>
+          <li>연봉과 자산 순위는 같은 나이끼리 비교해요. 나이가 많을수록 연봉과 자산이 오르는 게 보통이라, 같은 금액이라도 어릴수록 순위가 높게 나와요.</li>
+        </ul>
+        <div class="tbl-wrap"><table id="incAgeTbl"><thead><tr><th>남자 연봉</th><th>28살</th><th>32살</th><th>36살</th><th>40살</th></tr></thead><tbody></tbody></table></div>
+        <ul>
           <li>집안: 2025 가계금융복지조사의 가구 순자산(상위 10% 11억, 상위 5% 16.3억, 상위 1% 34.8억)에 맞춰 부모님 순자산 구간을 나눴어요.</li>
           <li>학력·직업·연봉·자산·집안은 실제처럼 서로 어느 정도 같이 움직이게 만들었어요. 그래서 조건끼리 겹치는 만큼은 덜 희귀하게 계산돼요.</li>
         </ul>
@@ -459,7 +495,7 @@ td.hl{color:var(--accent);font-weight:700}
         <h3>가감점 규칙</h3>
         <p><b>닮은꼴 감점.</b> 사람은 전체 점수만 보지 않고 항목별로도 자기와 비슷한 사람을 찾아요. 그래서 외모, 능력(경제력·직업·학력), 집안 세 항목에서 내 기준선이 나보다 크게 앞서면 감점해요.</p>
         <p class="sub">예를 들어 능력은 상위권인데 외모가 하위권인 사람이 외모 상위권 상대를 원하면, 전체 점수가 비슷해도 실질 위치를 낮춰서 판정해요. 내가 더 높은 항목은 내가 양보하는 쪽이라 감점하지 않아요. 계산은 항목별 차이(정규분포 점수)가 0.3을 넘는 만큼에 0.4를 곱해 더하고, 집안은 0.6배만 반영하며, 합계는 1.2까지만 반영해요.</p>
-        <p><b>같은 수준 조건은 빼요.</b> 집안과 학력은 끼리끼리 만나는 항목이라, 내가 이미 그 조건을 갖추고 있으면 같은 수준을 원하는 걸로 보고 기준선 계산에서 빼요. 조건 충족 비율에는 그대로 반영돼요.</p>
+        <p><b>같은 수준 조건은 빼요.</b> 집안과 학력은 끼리끼리 만나는 항목이라, 내가 이미 그 조건을 갖추고 있으면 같은 수준을 원하는 걸로 보고 기준선 계산에서 빼요. 조건 충족 비율에는 그대로 반영돼요. 집안은 '나와 비슷한 집안'도 고를 수 있어요. 내 집안 구간과 바로 위아래 구간까지를 비슷한 집안으로 보고, 이 경우도 눈높이 계산에서 빼요.</p>
         <p><b>나이 가감점.</b></p>
         <ul>
           <li>남자는 37살까지 나이 감점이 없고, 38살부터 한 살마다 종합 점수에서 1.5점씩 깎아요(최대 15점).</li>
@@ -505,13 +541,23 @@ const LOOKS_Q = {
     {id:'cast',q:'연예기획사나 모델 에이전시에서 배우·아이돌·모델 제의를 받은 적이 있나요?',opts:[['없어요',0],['한 번 있어요',4],['여러 번 있어요',8]]},
     {id:'street',q:'길을 걷거나 처음 가는 곳에서 사람들 반응은 어떤가요?',opts:[['특별한 반응은 없어요',0],['가끔 시선이 느껴져요',1],['처음 보는 사람이 번호를 물어본 적이 여러 번 있어요',3.5],['대부분의 사람들이 돌아봐요',7]]},
     {id:'daily',q:'일상에서 만난 여자 동료나 여자인 친구들에게 주로 어떤 말을 듣나요?',opts:[['다이어트·피부과·제모 등 관리해 보라는 조언',-3],['평범하다',0],['깔끔하다, 무난하다',1],['호감형이다',2],['잘생겼다',4]]},
-    {id:'confess',q:'여자에게 먼저 좋아한다는 고백을 받는 편인가요?',opts:[['거의 없고 내가 고백하는 편이에요',0],['가끔 받아요',1.5],['종종 받아요',3]]},
+    {id:'confess',q:'이성교제 목적이 아닌 일상적인 만남에서 여자에게 먼저 좋아한다고 고백을 받는 편인가요?',opts:[['거의 없고 내가 고백하는 편이에요',0],['가끔 받아요',1.5],['종종 받아요',3]]},
     {id:'group',q:'친구 모임이나 직장에서 외모로 꼽히나요?',opts:[['꼽히지 않아요',0],['가끔 꼽혀요',1.5],['어느 모임에서나 1~2등으로 꼽혀요',4]]},
     {id:'school',q:'학창 시절에 외모로 알려져 있었나요?',opts:[['아니요',0],['반에서는 알려져 있었어요',1],['학교에서 유명했어요',2.5]]},
     {id:'after',q:'소개팅이나 지인 소개로 만난 여자가 애프터에 응하거나 먼저 연락하는 편인가요?',opts:[['거의 거절당해요',-1.5],['반반이에요',0],['대부분 응하고 먼저 연락도 와요',1.5]]},
+    {id:'meeting',q:'미팅·과팅·단체 모임에서 여자들의 관심이 나에게 몰리는 편인가요?',opts:[['거의 없어요',0],['가끔 있어요',1],['자주 있어요',2.5]]},
+    {id:'sns',q:'SNS에 얼굴이 나온 사진을 올리면 모르는 여자에게 연락(DM·팔로우)이 오나요?',opts:[['거의 없어요',0],['가끔 와요',1],['자주 와요',2]]},
+    {id:'celeb',q:'잘생긴 연예인을 닮았다는 말을 듣나요?',opts:[['거의 없어요',0],['가끔 들어요',0.5],['자주 들어요',1.5]]},
+    {id:'impression',q:'첫인상은 주로 어떻다는 말을 듣나요?',opts:[['무섭다, 차갑다, 피곤해 보인다',-1],['특별한 말은 없어요',0],['인상이 좋다, 선해 보인다',0.5]]},
+    {id:'feature',q:'이목구비에 대해 어떤 말을 듣나요?',opts:[['코·턱·눈 등 콕 집어 아쉽다는 부위가 있어요',-1],['특별한 말은 없어요',0],['이목구비가 또렷하다, 잘생겼다',1]]},
+    {id:'favor',q:'일상에서 처음 보는 여자들이 먼저 말을 걸거나 친절을 베푸는 일이 잦은가요?',opts:[['거의 없어요',0],['가끔 있어요',0.5],['자주 있어요',1.5]]},
+    {id:'agelook',q:'실제 나이보다 어떻게 보인다는 말을 듣나요?',opts:[['나이 들어 보인다',-1.5],['비슷해 보인다',0],['어려 보인다',1]]},
     {id:'hair',q:'머리숱은 어떤가요?',opts:[['탈모가 눈에 띄게 진행됐어요',-3],['조금 걱정되는 정도예요',-1],['괜찮아요',0]]},
     {id:'skin',q:'피부 상태는 어떤가요?',opts:[['트러블이나 흉터가 눈에 띄어요',-1.5],['보통이에요',0],['깨끗하다는 말을 들어요',0.5]]},
-    {id:'body',q:'체형은 어느 쪽에 가깝나요?',opts:[['운동해서 탄탄해요',1],['보통이에요',0],['너무 마르거나 어깨가 좁은 편이에요',-1.5],['과체중이에요',-3],['비만이에요',-6]]}
+    {id:'teeth',q:'치아와 웃는 모습은 어떤가요?',opts:[['치아가 고르지 않거나 변색이 눈에 띄어요',-1],['보통이에요',0],['웃는 모습이 좋다는 말을 들어요',0.5]]},
+    {id:'style',q:'옷차림이나 헤어스타일은 어떤 편인가요?',opts:[['신경을 거의 안 써요',-1],['무난하게 입어요',0],['옷 잘 입는다, 잘 꾸민다는 말을 들어요',1]]},
+    {id:'body',q:'체형은 어느 쪽에 가깝나요?',opts:[['날씬하고 관리된 편이에요. 반바지 수영복만 입어도 굴욕이 크게 없어요',1],['보통이에요',0],['너무 마르거나 어깨가 좁은 편이에요',-1.5],['과체중이에요',-3],['비만이에요',-6]]},
+    {id:'proportion',q:'체형 비율은 어떤 말을 듣나요?',opts:[['비율이 아쉽다는 말을 들어요',-1],['특별한 말은 없어요',0],['어깨가 넓다, 다리가 길다 등 비율이 좋다',1]]}
   ],
   F:[
     {id:'cast',q:'연예기획사나 모델 에이전시에서 배우·아이돌·모델 제의를 받은 적이 있나요?',opts:[['없어요',0],['한 번 있어요',4],['여러 번 있어요',8]]},
@@ -521,13 +567,33 @@ const LOOKS_Q = {
     {id:'group',q:'모임에서 예쁜 사람을 꼽을 때 언급되나요?',opts:[['거의 언급되지 않아요',0],['종종 언급돼요',1.5],['항상 언급돼요',3],['어느 모임에서나 1등으로 꼽혀요',4.5]]},
     {id:'school',q:'학창 시절에 외모로 알려져 있었나요?',opts:[['아니요',0],['반에서는 알려져 있었어요',1],['학교에서 유명했어요',2.5]]},
     {id:'intro',q:'나를 보거나 내 사진을 본 남자가 지인에게 소개해 달라고 부탁하는 일이 있나요?',opts:[['거의 없어요',0],['가끔 있어요',0.5],['자주 있어요',1.5]]},
+    {id:'meeting',q:'미팅·과팅·단체 모임에서 남자들의 관심이 나에게 몰리는 편인가요?',opts:[['거의 없어요',0],['가끔 있어요',1],['자주 있어요',2.5]]},
+    {id:'sns',q:'SNS에 얼굴이 나온 사진을 올리면 모르는 남자에게 연락(DM·팔로우)이 오나요?',opts:[['거의 없어요',0],['가끔 와요',0.5],['자주 와요',1.5]]},
+    {id:'celeb',q:'예쁜 연예인을 닮았다는 말을 듣나요?',opts:[['거의 없어요',0],['가끔 들어요',0.5],['자주 들어요',1.5]]},
     {id:'nomakeup',q:'화장을 안 했거나 꾸미지 않은 날에도 예쁘다는 말을 듣나요?',opts:[['거의 없어요',0],['가끔 들어요',1],['자주 들어요',2]]},
+    {id:'photo',q:'보정이나 필터 없이 찍은 사진은 어떤가요?',opts:[['실물보다 많이 아쉬워서 꼭 보정해요',-1],['보통이에요',0],['보정 없이도 잘 나온다는 말을 들어요',1]]},
+    {id:'impression',q:'첫인상은 주로 어떻다는 말을 듣나요?',opts:[['차갑다, 세 보인다, 피곤해 보인다',-0.5],['특별한 말은 없어요',0],['인상이 좋다, 순해 보인다',0.5]]},
+    {id:'feature',q:'이목구비에 대해 어떤 말을 듣나요?',opts:[['코·턱·눈 등 콕 집어 아쉽다는 부위가 있어요',-1],['특별한 말은 없어요',0],['이목구비가 또렷하다, 눈이 예쁘다',1]]},
+    {id:'favor',q:'일상에서 남자들에게 이유 없는 호의(먼저 도와주기, 챙겨 주기, 가게에서 서비스 주기 등)를 받는 일이 잦은가요?',opts:[['거의 없어요',0],['가끔 있어요',0.5],['자주 있어요',1.5]]},
+    {id:'profile',q:'결혼정보회사나 소개팅 앱에 사진 프로필을 올렸을 때 반응은 어땠나요?',opts:[['신청이 적은 편이었어요',-1],['보통이었어요',0],['신청이 몰렸어요',1.5]]},
     {id:'skin',q:'피부 상태는 어떤가요?',opts:[['트러블이나 흉터가 눈에 띄어요',-1.5],['보통이에요',0],['깨끗하다는 말을 자주 들어요',1]]},
-    {id:'body',q:'체형은 어느 쪽에 가깝나요?',opts:[['날씬하고 관리된 편이에요',0.5],['보통이에요',0],['통통한 편이에요',-2],['과체중이에요',-3.5],['비만이에요',-6]]}
+    {id:'teeth',q:'치아 상태는 어떤가요?',opts:[['고르지 않거나 변색이 눈에 띄어요',-1],['괜찮아요',0]]},
+    {id:'body',q:'체형은 어느 쪽에 가깝나요?',opts:[['날씬하고 관리된 편이에요. 비키니를 입어도 굴욕이 크게 없어요',0.5],['보통이에요',0],['통통한 편이에요',-2],['과체중이에요',-3.5],['비만이에요',-6]]},
+    {id:'confess',q:'이성교제 목적이 아닌 일상적인 만남에서 남자에게 먼저 좋아한다고 고백을 받는 편인가요?',opts:[['거의 없어요',0],['가끔 받아요',0.5],['종종 받아요',1.5]]}
   ]
 };
-// minimum total for levels 1..9 (below the last → 10). Women's bar is set higher so one or two compliments aren't enough.
-const LOOKS_CUT = {M:[16,10,6.5,3,1,-1,-3.5,-5,-7.5], F:[22,16,11.5,7.5,3.5,-1,-3.5,-5.5,-8]};
+// minimum total for levels 1..9 (below the last → 10). Women's bar is set higher so a few compliments aren't enough.
+const LOOKS_CUT = {M:[30,18,7,3.5,1,-1.5,-5.5,-11.5,-16], F:[34,27,16,8,3.5,-1,-4,-8.5,-12.5]};
+// "similar family": my wealth tier and one tier either side
+const FAM_UP=[null,30,15,10,5,2,null], FAM_DN=[30,15,10,5,2,0,null];
+function famSimilar(myKey){
+  const idx=Math.max(0,FAM.findIndex(f=>f.k===myKey)),lo=Math.max(0,idx-1),hi=Math.min(FAM.length-1,idx+1);
+  let text;
+  if(lo===0)text=`${FAM_DN[hi]}억 이상`;
+  else if(hi>=5)text=`${FAM_UP[lo]}억 미만${hi===6?', 생활비 지원 필요 포함':''}`;
+  else text=`${FAM_DN[hi]}억~${FAM_UP[lo]}억`;
+  return{lo,hi,text};
+}
 function looksFromAnswers(g,ans){
   let score=0;for(const q of LOOKS_Q[g]){const a=ans[q.id];if(a!=null&&q.opts[a])score+=q.opts[a][1];}
   const cut=LOOKS_CUT[g];let L=10;for(let k=0;k<cut.length;k++){if(score>=cut[k]){L=k+1;break;}}
@@ -572,6 +638,27 @@ const JOB_SCORE = {
   M:{doc:100,law:92,dent:90,cpa:88,pharm:85,major:70,fin:68,big:64,pubco:60,civil:50,teach:48,mid:40,biz:38,sme:22,free:5},
   F:{doc:86,law:83,dent:83,cpa:82,pharm:81,major:80,fin:75,big:72,pubco:70,civil:64,teach:64,mid:55,biz:45,sme:40,free:25}
 };
+// pyramid grades shown when picking jobs
+// grades differ by the sex being judged: civil servants and teachers rank with big companies for women
+const JOB_TIERS = {
+  M:[
+    {name:'의사급',jobs:['doc']},
+    {name:'전문직급',jobs:['law','dent','cpa','pharm']},
+    {name:'대기업·금융급',jobs:['major','fin','big','pubco']},
+    {name:'안정 직업급',jobs:['civil','teach','mid']},
+    {name:'일반급',jobs:['biz','sme','free']}
+  ],
+  F:[
+    {name:'의사급',jobs:['doc']},
+    {name:'전문직급',jobs:['law','dent','cpa','pharm']},
+    {name:'대기업·금융·공공급',jobs:['major','fin','big','pubco','civil','teach']},
+    {name:'안정 직업급',jobs:['mid']},
+    {name:'일반급',jobs:['biz','sme','free']}
+  ]
+};
+const tierOfJob = (g,k) => JOB_TIERS[g].findIndex(t=>t.jobs.includes(k));
+const jobsUpTo = (g,t) => JOB_TIERS[g].slice(0,t+1).flatMap(x=>x.jobs);
+function tierSelected(g,sel){for(let t=0;t<JOB_TIERS[g].length;t++){const u=jobsUpTo(g,t);if(u.length===sel.length&&u.every(k=>sel.includes(k)))return t;}return -1;}
 const JOB_ORDER = {M:[...JOB_KEYS].sort((a,b)=>JOB_SCORE.M[b]-JOB_SCORE.M[a]), F:[...JOB_KEYS].sort((a,b)=>JOB_SCORE.F[b]-JOB_SCORE.F[a])};
 const EDU = [
   {k:'top', label:'SKY·KAIST·해외 명문·의치한약수', want:'SKY·명문대급', share:3},
@@ -605,10 +692,10 @@ const RADAR = [
   {key:'family', label:'집안', parts:['family']}
 ];
 const EXAMPLES = {
-  M:{me:{age:34,height:175,looks:5,looksAns:{cast:0,street:0,daily:2,confess:0,group:0,school:0,after:1,hair:2,skin:1,body:1},income:6000,assets:15000,job:'big',edu:'seoul',fam:'f5'},
+  M:{me:{age:34,height:175,looks:5,looksAns:{},income:6000,assets:15000,job:'big',edu:'seoul',fam:'f5'},
      want:{ageMin:28,ageMax:32,height:160,looks:3,income:null,assets:null,jobs:[],edu:null,fam:'f4'}},
-  F:{me:{age:32,height:163,looks:4,looksAns:{cast:0,street:0,perk:0,daily:3,group:2,school:0,intro:2,nomakeup:1,skin:1,body:1},income:4500,assets:8000,job:'mid',edu:'seoul',fam:'f5'},
-     want:{ageMin:31,ageMax:36,height:178,looks:4,income:7000,assets:null,jobs:['doc','law','dent','cpa','major','fin','big'],edu:null,fam:null}}
+  F:{me:{age:32,height:163,looks:4,looksAns:{},income:4500,assets:8000,job:'mid',edu:'seoul',fam:'f5'},
+     want:{ageMin:31,ageMax:36,height:178,looks:4,income:7000,assets:null,jobs:['doc','law','dent','cpa','pharm','major','fin','big','pubco'],edu:null,fam:null}}
 };
 // similarity penalty: people look for partners like themselves on each of these axes, not only on the total
 const SIM_AXES = [{key:'looks',label:'외모',w:1},{key:'ability',label:'능력',w:1},{key:'family',label:'집안',w:0.6}];
@@ -701,7 +788,7 @@ async function buildPool(g,seed){
   const w=W[g];
   for(let i=0;i<N;i++){
     if(i&&(i&8191)===0)await pause();
-    incP[i]=pct(sInc,inc[i]);astP[i]=pct(sAst,ast[i]);
+    incP[i]=incPctAge(g,age[i],inc[i]);astP[i]=astPctAge(g,age[i],ast[i]);
     total[i]=(w.age*ageScore(g,age[i])+w.looks*LOOKS_SC[g][looks[i]-1]+w.height*heightScore(g,h[i])+w.income*incP[i]+w.assets*astP[i]+w.job*JOB_SC[g][job[i]]+w.edu*EDU_SC[edu[i]]+w.family*FAM_SC[fam[i]])/100-(g==='M'?menAgePenalty(age[i]):0);
   }
   const sTot=Float32Array.from(total).sort();
@@ -709,7 +796,10 @@ async function buildPool(g,seed){
   return {g,age,h,inc,ast,looks,job,edu,fam,incP,astP,total,rank,sInc,sAst,sTot};
 }
 function dimsOfPool(pool,i){const g=pool.g;return{age:ageScore(g,pool.age[i]),looks:LOOKS_SC[g][pool.looks[i]-1],height:heightScore(g,pool.h[i]),income:pool.incP[i],assets:pool.astP[i],job:JOB_SC[g][pool.job[i]],edu:EDU_SC[pool.edu[i]],family:FAM_SC[pool.fam[i]]};}
-function dimsOfMe(g,me,pool){return{age:ageScore(g,toIntl(me.age)),looks:LOOKS_SC[g][me.looks-1],height:heightScore(g,me.height),income:pct(pool.sInc,me.income),assets:pct(pool.sAst,me.assets),job:JOB_SCORE[g][me.job],edu:EDU_SC[EDU.findIndex(e=>e.k===me.edu)],family:FAM_SC[FAM.findIndex(f=>f.k===me.fam)]};}
+// income/assets percentile among people of the same age (the pool's age trend is removed analytically)
+function incPctAge(g,ageIntl,v){const p=P[g];if(!(v>0))return 0.1;return 100*Phi((Math.log(v/p.incMed)-p.incSlope*(ageIntl-33))/p.incSig);}
+function astPctAge(g,ageIntl,v){const p=P[g];if(!(v>0))return 0.1;return 100*Phi((Math.log(v/p.astMed)-p.astSlope*(ageIntl-33))/p.astSig);}
+function dimsOfMe(g,me,pool){return{age:ageScore(g,toIntl(me.age)),looks:LOOKS_SC[g][me.looks-1],height:heightScore(g,me.height),income:incPctAge(g,toIntl(me.age),me.income),assets:astPctAge(g,toIntl(me.age),me.assets),job:JOB_SCORE[g][me.job],edu:EDU_SC[EDU.findIndex(e=>e.k===me.edu)],family:FAM_SC[FAM.findIndex(f=>f.k===me.fam)]};}
 
 let pools=null; // filled in the background after first paint (see boot)
 
@@ -722,22 +812,24 @@ function fmtOneIn(p){if(p<=0)return '해당자 거의 없음';const k=1/p;if(k<2
 /* ---------- state & form ---------- */
 const $=s=>document.querySelector(s);
 const state={gender:'M',edited:false,me:null,want:null};
-const STORE='metacognition-v5';
+const STORE='metacognition-v7';
 function save(){try{localStorage.setItem(STORE,JSON.stringify({gender:state.gender,me:state.me,want:state.want}));}catch(e){}}
 function load(){try{const s=JSON.parse(localStorage.getItem(STORE)||'null');if(s&&s.me&&s.want&&(s.gender==='M'||s.gender==='F')&&JOBS[s.me.job]&&s.me.looksAns&&typeof s.me.looksAns==='object'&&Array.isArray(s.want.jobs)&&s.want.jobs.every(k=>JOBS[k]))return s;}catch(e){}return null;}
 
 function opt(sel,items,value){sel.innerHTML=items.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');sel.value=value==null?'':String(value);}
 function buildSelects(){
   const g=state.gender,pg=other(g);
-  opt($('#me-job'),JOB_ORDER[g].map(k=>[k,JOBS[k].label]),state.me.job);
+  $('#me-job').innerHTML=JOB_TIERS[g].map((t,ti)=>`<optgroup label="${ti+1}급 ${t.name}">${[...t.jobs].sort((a,b)=>JOB_SCORE[g][b]-JOB_SCORE[g][a]).map(k=>`<option value="${k}">${JOBS[k].label}</option>`).join('')}</optgroup>`).join('');$('#me-job').value=state.me.job;
   opt($('#me-edu'),EDU.map(e=>[e.k,e.label]),state.me.edu);
   opt($('#me-fam'),FAM.map(f=>[f.k,f.label]),state.me.fam);
   opt($('#want-height'),[['','상관없음'],...HEIGHT_OPTS[pg].map(v=>[v,`${v}cm 이상`])],state.want.height);
   opt($('#want-income'),[['','상관없음'],...INCOME_OPTS.map(v=>[v,`${fmtMan(v)} 이상`])],state.want.income);
   opt($('#want-assets'),[['','상관없음'],...ASSET_OPTS.map(v=>[v,`${fmtMan(v)} 이상`])],state.want.assets);
   opt($('#want-edu'),[['','상관없음'],...EDU.filter(e=>e.want).map(e=>[e.k,e.want]).reverse()],state.want.edu);
-  opt($('#want-fam'),[['','상관없음'],...FAM.filter(f=>f.want).map(f=>[f.k,f.want]).reverse()],state.want.fam);
-  $('#want-jobs').innerHTML=JOB_ORDER[pg].map(k=>`<button type="button" class="chip" data-job="${k}" aria-pressed="${state.want.jobs.includes(k)}">${JOBS[k].short}</button>`).join('');
+  opt($('#want-fam'),[['','상관없음'],['same',`나와 비슷한 집안 (${famSimilar(state.me.fam).text})`],...FAM.filter(f=>f.want).map(f=>[f.k,f.want]).reverse()],state.want.fam);
+  const W=['46%','60%','74%','88%','100%'],WM=['70%','82%','90%','96%','100%'],TINT=['30%','22%','15%','9%','4%'];
+  $('#want-jobs').innerHTML=JOB_TIERS[pg].map((t,ti)=>`<div class="tier" style="--w:${W[ti]};--wm:${WM[ti]};--tint:${TINT[ti]}"><div class="tier-h"><span class="tier-n"><b>${ti+1}급</b>${t.name}</span><button type="button" class="tier-up" data-t="${ti}" aria-pressed="false">${ti===0?'이 급만 선택':'이 급 이상 전체'}</button></div><div class="chips">${[...t.jobs].sort((a,b)=>JOB_SCORE[pg][b]-JOB_SCORE[pg][a]).map(k=>`<button type="button" class="chip" data-job="${k}" aria-pressed="false">${JOBS[k].short}</button>`).join('')}</div></div>`).join('');
+  paintJobs();
 }
 function buildFaces(){
   const g=state.gender,pg=other(g);
@@ -749,13 +841,24 @@ function paintFaces(){
   const ans=state.me.looksAns||{};
   document.querySelectorAll('#me-looks-q fieldset').forEach(fs=>{const a=ans[fs.dataset.q];fs.querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed',String(a!=null&&+b.dataset.a===a)));});
   const m=looksFromAnswers(g,ans);state.me.looks=m.level;const L=m.level-1;
-  $('#me-looks-res').innerHTML=`<img src="${FACES[g][L]}" alt="${L+1}단계 예시 얼굴"><div><p class="k">측정 결과</p><p class="t">${L+1}단계 ${LOOKS.label[g][L]}</p><p class="d">${LOOKS.desc[g][L]}</p><p class="p">이 단계 이상은 ${word(g)} 중 상위 ${+cumTop(LOOKS.share[g],L).toFixed(1)}% · 답변 점수 ${m.score>0?'+':''}${m.score}점</p></div>`;
+  const total=LOOKS_Q[g].length,done=LOOKS_Q[g].filter(q=>ans[q.id]!=null).length;
+  $('#me-looks-total').textContent=total;$('#me-looks-count').textContent=`${done}/${total} 답함`;
+  $('#me-looks-box').classList.toggle('todo',done===0);
+  if(done===0){$('#me-looks-res').innerHTML=`<img src="${FACES[g][L]}" alt="" class="dim"><div><p class="k">아직 답하지 않았어요</p><p class="t">외모 질문에 답해 주세요</p><p class="d">아래 질문 ${total}개에 답하면 외모 단계가 정해져요. 답하기 전에는 ${L+1}단계 ${LOOKS.label[g][L]}으로 계산해요.</p></div>`;return;}
+  $('#me-looks-res').innerHTML=`<img src="${FACES[g][L]}" alt="${L+1}단계 예시 얼굴"><div><p class="k">측정 결과${done<total?` · ${total-done}개 미답`:''}</p><p class="t">${L+1}단계 ${LOOKS.label[g][L]}</p><p class="d">${LOOKS.desc[g][L]}</p><p class="p">이 단계 이상은 ${word(g)} 중 상위 ${+cumTop(LOOKS.share[g],L).toFixed(1)}% · 답변 점수 ${m.score>0?'+':''}${m.score}점</p></div>`;
   const wl=state.want.looks, wrap=$('#want-looks');
   wrap.classList.toggle('any',wl==null);
   $('#want-looks-any').setAttribute('aria-pressed',String(wl==null));
   wrap.querySelectorAll('.face').forEach(b=>{const l=+b.dataset.l;b.setAttribute('aria-pressed',String(l===wl));b.classList.toggle('out',wl!=null&&l>wl);});
   if(wl==null){$('#want-looks-d').innerHTML=`외모는 따지지 않아요. 원하는 선이 있으면 사진을 눌러 주세요.`;}
   else{const k=wl-1;$('#want-looks-d').innerHTML=`<b>${wl}단계 ${LOOKS.label[pg][k]} 이상</b> · ${LOOKS.desc[pg][k]} · <span class="pct">이 정도 이상인 ${word(pg)}은 상위 ${+cumTop(LOOKS.share[pg],k).toFixed(1)}%</span>`;}
+}
+function paintJobs(){
+  const pg=other(state.gender),sel=state.want.jobs,ts=tierSelected(pg,sel);
+  document.querySelectorAll('#want-jobs .chip').forEach(b=>b.setAttribute('aria-pressed',String(sel.includes(b.dataset.job))));
+  document.querySelectorAll('#want-jobs .tier-up').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.t===ts)));
+  $('#want-jobs-any').setAttribute('aria-pressed',String(!sel.length));
+  $('#want-jobs-h').textContent=!sel.length?'직업은 따지지 않아요.':(ts>=0?`${ts+1}급 ${JOB_TIERS[pg][ts].name}${ts?' 이상':''} · 직업 ${sel.length}개`:`직업 ${sel.length}개 선택`);
 }
 function writeForm(){
   const m=state.me,w=state.want;
@@ -783,8 +886,8 @@ function readForm(){
 }
 function helpers(){
   const m=state.me;
-  const ih=$('#me-income-h');if(!ih.classList.contains('err'))ih.textContent=`${fmtMan(m.income)} · ${word(state.gender)} 중 ${fmtTop(pct(pools[state.gender].sInc,m.income))}`;
-  const ah=$('#me-assets-h');if(!ah.classList.contains('err'))ah.textContent=`${fmtMan(m.assets)} · ${word(state.gender)} 중 ${fmtTop(pct(pools[state.gender].sAst,m.assets))}`;
+  const ih=$('#me-income-h');if(!ih.classList.contains('err'))ih.textContent=`${fmtMan(m.income)} · ${m.age}살 ${word(state.gender)} 중 ${fmtTop(incPctAge(state.gender,toIntl(m.age),m.income))}`;
+  const ah=$('#me-assets-h');if(!ah.classList.contains('err'))ah.textContent=`${fmtMan(m.assets)} · ${m.age}살 ${word(state.gender)} 중 ${fmtTop(astPctAge(state.gender,toIntl(m.age),m.assets))}`;
   const hh=$('#me-height-h');if(!hh.classList.contains('err'))hh.textContent=state.gender==='M'?`남성 중 ${fmtTop(heightScore('M',m.height))}`:(m.height<158?'157cm 이하라 감점이 커요':(m.height>170?'171cm 이상이라 조금 감점돼요':'158~170cm는 감점이 없어요'));
   const ah2=$('#me-age-h');if(!ah2.classList.contains('err'))ah2.textContent='';
   $('#me-age-y').textContent=birthYY(m.age);
@@ -803,10 +906,11 @@ function evaluate(){
   if(w.looks!=null)conds.push({f:'want-looks',label:`외모 ${w.looks}단계 이상`,t:i=>tp.looks[i]<=w.looks});
   if(w.income!=null)conds.push({f:'want-income',label:`연봉 ${fmtMan(w.income)} 이상`,t:i=>tp.inc[i]>=w.income});
   if(w.assets!=null)conds.push({f:'want-assets',label:`순자산 ${fmtMan(w.assets)} 이상`,t:i=>tp.ast[i]>=w.assets});
-  if(w.jobs.length){const ok=JOB_KEYS.map(k=>w.jobs.includes(k));const names=JOB_ORDER[pg].filter(k=>w.jobs.includes(k)).map(k=>JOBS[k].short);conds.push({label:names.length>3?`직업 ${names.slice(0,2).join(', ')} 외 ${names.length-2}개`:`직업 ${names.join(', ')}`,t:i=>ok[tp.job[i]]});}
+  if(w.jobs.length){const ok=JOB_KEYS.map(k=>w.jobs.includes(k));const names=JOB_ORDER[pg].filter(k=>w.jobs.includes(k)).map(k=>JOBS[k].short),ts=tierSelected(pg,w.jobs);conds.push({label:ts>=0?`직업 ${JOB_TIERS[pg][ts].name}${ts?' 이상':''}`:(names.length>3?`직업 ${names.slice(0,2).join(', ')} 외 ${names.length-2}개`:`직업 ${names.join(', ')}`),t:i=>ok[tp.job[i]]});}
   // family and education are matched like-with-like: if I already meet the bar myself, wanting the same isn't counted as aiming high
   if(w.edu!=null){const mx=EDU.findIndex(e=>e.k===w.edu);conds.push({f:'want-edu',label:`학력 ${EDU[mx].want}`,matched:EDU.findIndex(e=>e.k===me.edu)<=mx,t:i=>tp.edu[i]<=mx});}
-  if(w.fam!=null){const mx=FAM.findIndex(f=>f.k===w.fam);conds.push({f:'want-fam',label:`집안 ${FAM[mx].short}`,matched:FAM.findIndex(f=>f.k===me.fam)<=mx,t:i=>tp.fam[i]<=mx});}
+  if(w.fam==='same'){const sm=famSimilar(me.fam);conds.push({f:'want-fam',same:true,label:`집안 나와 비슷함(${sm.text})`,matched:true,t:i=>tp.fam[i]>=sm.lo&&tp.fam[i]<=sm.hi});}
+  else if(w.fam!=null){const mx=FAM.findIndex(f=>f.k===w.fam);conds.push({f:'want-fam',label:`집안 ${FAM[mx].short}`,matched:FAM.findIndex(f=>f.k===me.fam)<=mx,t:i=>tp.fam[i]<=mx});}
   const C=conds.length,only=new Float64Array(C),marg=new Float64Array(C);
   const aMin=toIntl(w.ageMin),aMax=toIntl(w.ageMax);
   const qual=new Int32Array(N),qual2=new Int32Array(N);let pass=0,pass2=0,ageCount=0;
@@ -833,7 +937,7 @@ function evaluate(){
   res.myRadar=radarOf(g,myDims);
   const mine=simAxes(g,myDims);
   const theirs=pass?{looks:quantile(sl,0.25),ability:quantile(sa,0.25),family:quantile(sf,0.25)}
-    :{looks:w.looks!=null?LOOKS_SC[pg][w.looks-1]:50,ability:60,family:w.fam!=null?FAM_SC[FAM.findIndex(f=>f.k===w.fam)]:50};
+    :{looks:w.looks!=null?LOOKS_SC[pg][w.looks-1]:50,ability:60,family:w.fam==='same'?mine.family:(w.fam!=null?FAM_SC[FAM.findIndex(f=>f.k===w.fam)]:50)};
   res.sim=SIM_AXES.map(ax=>{const dz=z100(theirs[ax.key])-z100(mine[ax.key]);return{label:ax.label,me:mine[ax.key],them:theirs[ax.key],dz,p:Math.max(0,dz-SIM_TOL)*SIM_K*ax.w};});
   res.penalty=Math.min(SIM_CAP,res.sim.reduce((t,x)=>t+x.p,0));
   res.myAgePen=myAgePen;
@@ -929,9 +1033,10 @@ function render(){
     +(r.myAgePen>0?`<li><span class="sl">내 나이</span><span class="sv">${state.me.age}살 · 종합 점수 −${r.myAgePen.toFixed(1)}점 반영</span><span class="st st-high">감점</span></li>`:'')
     +r.ageAdj.map(x=>`<li><span class="sl">${x.label}</span><span class="sv">${x.text}</span><span class="st st-${x.v<0?'high':'fit'}">${x.v<0?'감점':'가산점'}</span></li>`).join('')
     +r.pick.map(x=>`<li><span class="sl">${x.label}</span><span class="sv">${x.text}</span><span class="st st-high">−${x.pts}점</span></li>`).join('')
-    +r.matched.map(c=>`<li><span class="sl">${c.f==='want-fam'?'집안 조건':'학력 조건'}</span><span class="sv">${c.label.replace(/^(집안|학력) /,'')} · 나도 같은 수준이라 눈높이 계산에서 뺐어요</span><span class="st st-fit">제외</span></li>`).join('');
+    +r.matched.map(c=>`<li><span class="sl">${c.f==='want-fam'?'집안 조건':'학력 조건'}</span><span class="sv">${c.label.replace(/^(집안|학력) /,'')} · ${c.same?'나와 비슷한 집안이라':'나도 같은 수준이라'} 눈높이 계산에서 뺐어요</span><span class="st st-fit">제외</span></li>`).join('');
   $('#simNote').textContent=pen?`가감점을 반영하면 실질 위치가 ${fmtTop(r.myRank)}에서 ${fmtTop(r.effRank)}로 ${r.effRank<r.myRank?'내려가요':'올라가요'}. 상대는 항목마다 자기와 비슷한 사람을 찾고, 나이차가 클수록 상대 쪽 선택지가 줄기 때문이에요.`:'외모·능력·집안이 원하는 상대와 크게 차이 나지 않고, 나이차 가감점도 없어요.';
   const wah=$('#want-age-h');if(!wah.classList.contains('err'))wah.textContent=r.ageAdj.length?r.ageAdj.map(x=>x.v<0?`나보다 ${state.me.age-w.ageMax}살 이상 어린 상대만 원해서 감점돼요`:`${w.ageMax-state.me.age}살 연상까지 열어 둬서 가산점이 있어요`).join(' '):'';
+  const so=$('#want-fam option[value="same"]');if(so)so.textContent=`나와 비슷한 집안 (${famSimilar(state.me.fam).text})`;
   const mah=$('#me-age-h');if(!mah.classList.contains('err'))mah.textContent=r.myAgePen>0?`38살부터 감점 · 종합 점수 −${r.myAgePen.toFixed(1)}점`:'';
   drawRadar(r.myRadar,r.themRadar);
   const bl=$('#bottle');
@@ -957,7 +1062,8 @@ function renderMethod(){
   ['M','F'].forEach(g=>{$('#lq'+g).innerHTML='<ol>'+LOOKS_Q[g].map(q=>`<li>${q.q}<span>${q.opts.map(o=>`${o[0]} ${o[1]>0?'+':''}${o[1]}`).join(' · ')}</span></li>`).join('')+'</ol>';});
   $('#ageTbl tbody').innerHTML=Array.from({length:16},(_,i)=>25+i).map(k=>{const a=toIntl(k),mp=menAgePenalty(a);return `<tr><td>${k}살</td><td>${Math.round(ageScore('F',a))}점</td><td>${Math.round(ageScore('M',a))}점</td><td class="${mp?'hl':''}">${mp?`−${mp}점`:'없음'}</td></tr>`;}).join('');
   $('#hDemandTbl tbody').innerHTML=[175,176,177,178,179,180,181,182,183,185].map(h=>{const p=heightDemandPts(h);return `<tr><td>${h}cm 이상</td><td class="${p?'hl':''}">${p?`−${p}점`:'없음'}</td></tr>`;}).join('');
-  $('#jobTbl tbody').innerHTML=JOB_ORDER.M.map(k=>`<tr><td>${JOBS[k].short}</td><td class="${k==='doc'?'hl':''}">${JOB_SCORE.M[k]}</td><td>${JOB_SCORE.F[k]}</td></tr>`).join('');
+  $('#incAgeTbl tbody').innerHTML=[4000,5000,6000,8000,10000].map(v=>`<tr><td>${fmtMan(v)}</td>${[28,32,36,40].map(k=>`<td>${fmtTop(incPctAge('M',toIntl(k),v))}</td>`).join('')}</tr>`).join('');
+  $('#jobTbl tbody').innerHTML=JOB_TIERS.M.flatMap((t,ti)=>[...t.jobs].sort((a,b)=>JOB_SCORE.M[b]-JOB_SCORE.M[a]).map(k=>[k,ti])).map(([k,ti])=>{const tf=tierOfJob('F',k);return `<tr><td>${JOBS[k].short}</td><td>${ti+1}급</td><td class="${k==='doc'?'hl':''}">${JOB_SCORE.M[k]}</td><td class="${tf!==ti?'hl':''}">${tf+1}급</td><td>${JOB_SCORE.F[k]}</td></tr>`;}).join('');
   $('#heightTbl tbody').innerHTML=[170,172,175,178,180,183,185].map(h=>{const p=1-Phi((h-P.M.hMean)/P.M.hSd);return `<tr><td>${h}cm 이상</td><td class="hl">${(p*100).toFixed(1)}%</td><td>${fmtOneIn(p)}</td></tr>`;}).join('');
 }
 function renderMethodPools(){
@@ -979,10 +1085,16 @@ $('#form').addEventListener('input',e=>{if(e.target.matches('input,select')){rea
 $('#form').addEventListener('change',e=>{if(e.target.matches('select')){readForm();markEdited();render();save();}});
 $('#form').addEventListener('submit',e=>e.preventDefault());
 document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.g!==state.gender)setGender(b.dataset.g);}));
+$('#me-looks-close').addEventListener('click',()=>{const box=$('#me-looks-box');box.open=false;const r=box.getBoundingClientRect();if(r.top<0)box.scrollIntoView({block:'center'});box.querySelector('summary').focus({preventScroll:true});});
 $('#me-looks-q').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;const q=b.closest('fieldset').dataset.q;if(!state.me.looksAns)state.me.looksAns={};state.me.looksAns[q]=+b.dataset.a;markEdited();paintFaces();render();save();});
 $('#want-looks').addEventListener('click',e=>{const b=e.target.closest('.face');if(!b)return;state.want.looks=+b.dataset.l;markEdited();paintFaces();render();save();});
 $('#want-looks-any').addEventListener('click',()=>{state.want.looks=state.want.looks==null?(state.gender==='M'?5:5):null;markEdited();paintFaces();render();save();});
-$('#want-jobs').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const k=b.dataset.job,js=state.want.jobs;const i=js.indexOf(k);if(i>=0)js.splice(i,1);else js.push(k);b.setAttribute('aria-pressed',String(i<0));markEdited();render();save();});
+$('#want-jobs').addEventListener('click',e=>{
+  const up=e.target.closest('.tier-up');
+  if(up){const t=+up.dataset.t,pg=other(state.gender);state.want.jobs=tierSelected(pg,state.want.jobs)===t?[]:jobsUpTo(pg,t);}
+  else{const b=e.target.closest('.chip');if(!b)return;const k=b.dataset.job,js=state.want.jobs;const i=js.indexOf(k);if(i>=0)js.splice(i,1);else js.push(k);}
+  paintJobs();markEdited();render();save();});
+$('#want-jobs-any').addEventListener('click',()=>{state.want.jobs=[];paintJobs();markEdited();render();save();});
 $('#resetEx').addEventListener('click',()=>setGender(state.gender));
 
 /* hide the mobile bar while the verdict slip is on screen */
