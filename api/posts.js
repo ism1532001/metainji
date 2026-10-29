@@ -1,12 +1,10 @@
-// 메타인지 인증 게시판 API (Vercel Function + Vercel Blob)
-// GET    /api/posts?mode=marry|date&g=M|F&after=<id>&limit=20   최신순 목록
+// 메타인지 인증 게시판 API (Vercel Function + Upstash Redis)
+// GET    /api/posts?mode=marry|date&g=M|F&after=<ts>&limit=20   최신순 목록
 // POST   /api/posts  {nick,msg,m,g,age,k,me,t,r,want}             인증 올리기 → {post, token}
 // POST   /api/posts  {action:'delete', id, token}                 내가 올린 글 지우기
-// 글 하나가 Blob 파일 하나예요. 파일 이름에 시간을 거꾸로 넣어서 이름순 정렬이 곧 최신순이에요.
-import { put, list, del } from '@vercel/blob';
+// 글은 p:<id> 에 JSON으로, 목록은 시간순 정렬 집합(pz:all, pz:m:<기준>, pz:g:<성별>, pz:mg:<기준><성별>)에 넣어요.
 import { createHash, randomBytes } from 'node:crypto';
 
-const PREFIX = 'posts/';
 const MAX_TS = 9999999999999;
 const ID_RE = /^(\d{13})-(marry|date)([MF])-([0-9a-f]{12})$/;
 const ORIGIN_RE = /^(https:\/\/metainji(-[a-z0-9-]+)?\.vercel\.app|http:\/\/(localhost|127\.0\.0\.1)(:\d+)?)$/;
@@ -15,6 +13,17 @@ const RESERVED_NICK = /운영자|관리자|메타인지|admin/i;
 const LINK_RE = /(https?:\/\/|www\.|\.(com|net|org|kr|co|io|me|ly|gg|xyz|link|shop)\b|open\.kakao)/i;
 
 const sha = s => createHash('sha256').update(s).digest('hex');
+const kstDay = (t = Date.now()) => new Date(t + 9 * 3600e3).toISOString().slice(0, 10);
+
+async function redis(cmds) {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) throw new Error('redis_not_configured');
+  const r = await fetch(`${url.replace(/\/$/, '')}/pipeline`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(cmds) });
+  if (!r.ok) throw new Error('redis_http_' + r.status);
+  const out = await r.json();
+  return out.map(x => { if (x && x.error) throw new Error('redis: ' + x.error); return x ? x.result : null; });
+}
 
 function send(res, status, body, headers = {}) {
   res.statusCode = status;
@@ -39,55 +48,70 @@ async function readBody(req) {
 
 function cleanText(v, max) {
   if (typeof v !== 'string') return '';
-  let s = v.normalize('NFC').replace(/[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g, '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
+  let s = v.normalize('NFC').replace(/[​-‏‪-‮⁠-⁯﻿]/g, '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
   s = Array.from(s).slice(0, max).join('');
   for (const w of BAD_WORDS) s = s.split(w).join('*'.repeat(Array.from(w).length));
   return s;
 }
 const num = (v, lo, hi) => (typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi ? v : null);
 
-async function listAll() {
-  const out = [];
-  let cursor;
-  for (let page = 0; page < 5; page++) {
-    const r = await list({ prefix: PREFIX, limit: 1000, cursor });
-    out.push(...r.blobs);
-    if (!r.hasMore) break;
-    cursor = r.cursor;
-  }
-  return out
-    .map(b => ({ b, id: b.pathname.slice(PREFIX.length).replace(/\.json$/, '') }))
-    .filter(x => ID_RE.test(x.id))
-    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-}
-
-async function readPost(blob) {
-  const r = await fetch(blob.url, { cache: 'no-store' });
-  if (!r.ok) throw new Error('read_failed');
-  return r.json();
-}
-
 function publicPost(p) {
   return { id: p.id, ts: p.ts, nick: p.nick, msg: p.msg, m: p.m, g: p.g, age: p.age, k: p.k, me: p.me, t: p.t, r: p.r, want: p.want };
+}
+const indexCmds = p => [
+  ['SET', `p:${p.id}`, JSON.stringify(p)],
+  ['ZADD', 'pz:all', String(p.ts), p.id],
+  ['ZADD', `pz:m:${p.m}`, String(p.ts), p.id],
+  ['ZADD', `pz:g:${p.g}`, String(p.ts), p.id],
+  ['ZADD', `pz:mg:${p.m}${p.g}`, String(p.ts), p.id],
+];
+
+// one-time move of posts saved by the earlier Blob-based version
+async function importFromBlob() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return;
+  const [claimed] = await redis([['SET', 'mig:blob', 'running', 'NX', 'EX', '120']]);
+  if (claimed === null) return;
+  try {
+    const { list } = await import('@vercel/blob');
+    const { blobs } = await list({ prefix: 'posts/', limit: 1000 });
+    const cmds = [];
+    for (const b of blobs) {
+      const id = b.pathname.slice(6).replace(/\.json$/, '');
+      if (!ID_RE.test(id)) continue;
+      try {
+        const p = await (await fetch(b.url, { cache: 'no-store' })).json();
+        if (p && p.id === id) { delete p.ipHash; cmds.push(...indexCmds(p)); }
+      } catch {}
+    }
+    if (cmds.length) await redis(cmds);
+    await redis([['SET', 'mig:blob', 'done']]);
+  } catch (e) {
+    console.error('blob import failed', e);
+    await redis([['DEL', 'mig:blob']]);
+  }
 }
 
 async function handleList(req, res) {
   const url = new URL(req.url, 'http://x');
-  const mode = url.searchParams.get('mode');
-  const g = url.searchParams.get('g');
+  const mode = ['marry', 'date'].includes(url.searchParams.get('mode')) ? url.searchParams.get('mode') : '';
+  const g = ['M', 'F'].includes(url.searchParams.get('g')) ? url.searchParams.get('g') : '';
   const after = url.searchParams.get('after');
   const limit = Math.min(30, Math.max(1, parseInt(url.searchParams.get('limit') || '20', 10) || 20));
-  let items = await listAll();
-  items = items.filter(({ id }) => {
-    const [, , m, gg] = id.match(ID_RE);
-    return (mode !== 'marry' && mode !== 'date' || m === mode) && (g !== 'M' && g !== 'F' || gg === g);
-  });
-  if (after && ID_RE.test(after)) items = items.filter(x => x.id > after);
-  const page = items.slice(0, limit);
-  const settled = await Promise.allSettled(page.map(x => readPost(x.b)));
-  const posts = settled.filter(s => s.status === 'fulfilled').map(s => publicPost(s.value));
-  const hasMore = items.length > limit;
-  send(res, 200, { posts, hasMore, next: hasMore ? page[page.length - 1].id : null }, { 'Cache-Control': 'public, s-maxage=5, stale-while-revalidate=30' });
+  const key = mode && g ? `pz:mg:${mode}${g}` : mode ? `pz:m:${mode}` : g ? `pz:g:${g}` : 'pz:all';
+  const max = after && /^\d{1,15}$/.test(after) ? `(${after}` : '+inf';
+  const range = ['ZRANGE', key, max, '-inf', 'BYSCORE', 'REV', 'LIMIT', '0', String(limit + 1)];
+  let [migrated, ids] = await redis([['EXISTS', 'mig:blob'], range]);
+  if (!migrated && process.env.BLOB_READ_WRITE_TOKEN) { await importFromBlob(); [ids] = await redis([range]); }
+  ids = ids || [];
+  const hasMore = ids.length > limit;
+  const page = ids.slice(0, limit);
+  let posts = [];
+  if (page.length) {
+    const [vals] = await redis([['MGET', ...page.map(id => `p:${id}`)]]);
+    posts = (vals || []).filter(Boolean).map(v => { try { return publicPost(JSON.parse(v)); } catch { return null; } }).filter(Boolean);
+  }
+  const last = posts[posts.length - 1];
+  send(res, 200, { posts, hasMore, next: hasMore && last ? String(last.ts) : null }, { 'Cache-Control': 'public, s-maxage=5, stale-while-revalidate=30' });
 }
 
 function clientIp(req) {
@@ -110,17 +134,18 @@ async function handleCreate(req, res, body) {
   if (want.some(w => LINK_RE.test(w))) return send(res, 400, { error: 'link', message: '링크나 연락처는 올릴 수 없어요.' });
 
   const now = Date.now();
-  const ipHash = sha(clientIp(req) + '|' + (process.env.BLOB_READ_WRITE_TOKEN || '').slice(-24)).slice(0, 32);
-  // rate limit: one post per person per minute, and at most 30 posts a minute overall
-  const recent = (await listAll()).filter(x => now - (MAX_TS - Number(x.id.slice(0, 13))) < 60_000);
-  if (recent.length >= 30) return send(res, 429, { error: 'busy', message: '지금 올리는 사람이 많아요. 잠시 후 다시 올려 주세요.' });
-  const mine = await Promise.allSettled(recent.slice(0, 30).map(x => readPost(x.b)));
-  if (mine.some(s => s.status === 'fulfilled' && s.value.ipHash === ipHash)) return send(res, 429, { error: 'slow', message: '1분에 한 번만 올릴 수 있어요. 잠시 후 다시 올려 주세요.' });
+  const ipHash = sha(clientIp(req) + '|' + (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '').slice(-24)).slice(0, 32);
+  // one post per person per minute, and at most 30 posts a minute overall
+  const minute = `rl:min:${Math.floor(now / 60000)}`;
+  const [okIp, perMin] = await redis([['SET', `rl:ip:${ipHash}`, '1', 'NX', 'EX', '60'], ['INCR', minute], ['EXPIRE', minute, '120']]);
+  if (okIp === null) return send(res, 429, { error: 'slow', message: '1분에 한 번만 올릴 수 있어요. 잠시 후 다시 올려 주세요.' });
+  if (perMin > 30) return send(res, 429, { error: 'busy', message: '지금 올리는 사람이 많아요. 잠시 후 다시 올려 주세요.' });
 
   const token = randomBytes(16).toString('hex');
   const id = `${String(MAX_TS - now).padStart(13, '0')}-${m}${g}-${randomBytes(6).toString('hex')}`;
-  const post = { id, ts: now, nick, msg, m, g, age, k, me: Math.round(me * 10) / 10, t: Math.round(t * 10) / 10, r: Number(r.toPrecision(4)), want, tokenHash: sha(token), ipHash };
-  await put(`${PREFIX}${id}.json`, JSON.stringify(post), { access: 'public', contentType: 'application/json', addRandomSuffix: false });
+  const post = { id, ts: now, nick, msg, m, g, age, k, me: Math.round(me * 10) / 10, t: Math.round(t * 10) / 10, r: Number(r.toPrecision(4)), want, tokenHash: sha(token) };
+  const day = kstDay(now);
+  await redis([...indexCmds(post), ['HINCRBY', `st:d:${day}`, 'post', '1'], ['HINCRBY', 'st:total', 'post', '1'], ['EXPIRE', `st:d:${day}`, String(400 * 86400)]]);
   send(res, 201, { post: publicPost(post), token });
 }
 
@@ -128,12 +153,11 @@ async function handleDelete(req, res, body) {
   const id = typeof body.id === 'string' ? body.id : '';
   const token = typeof body.token === 'string' ? body.token : '';
   if (!ID_RE.test(id) || !/^[0-9a-f]{32}$/.test(token)) return send(res, 400, { error: 'invalid', message: '지울 글을 찾지 못했어요.' });
-  const { blobs } = await list({ prefix: `${PREFIX}${id}.json`, limit: 1 });
-  const blob = blobs.find(b => b.pathname === `${PREFIX}${id}.json`);
-  if (!blob) return send(res, 404, { error: 'gone', message: '이미 지워진 글이에요.' });
-  const post = await readPost(blob);
+  const [raw] = await redis([['GET', `p:${id}`]]);
+  if (!raw) return send(res, 404, { error: 'gone', message: '이미 지워진 글이에요.' });
+  const post = JSON.parse(raw);
   if (post.tokenHash !== sha(token)) return send(res, 403, { error: 'forbidden', message: '이 기기에서 올린 글만 지울 수 있어요.' });
-  await del(blob.url);
+  await redis([['DEL', `p:${id}`], ['ZREM', 'pz:all', id], ['ZREM', `pz:m:${post.m}`, id], ['ZREM', `pz:g:${post.g}`, id], ['ZREM', `pz:mg:${post.m}${post.g}`, id]]);
   send(res, 200, { ok: true });
 }
 
@@ -150,6 +174,7 @@ export default async function handler(req, res) {
     return await handleCreate(req, res, body || {});
   } catch (e) {
     console.error('posts api error', e);
-    return send(res, 500, { error: 'server', message: '잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요.' });
+    const notReady = String(e && e.message) === 'redis_not_configured';
+    return send(res, notReady ? 503 : 500, { error: notReady ? 'not_ready' : 'server', message: notReady ? '게시판을 준비하고 있어요. 조금 뒤에 다시 와 주세요.' : '잠시 문제가 생겼어요. 조금 뒤에 다시 시도해 주세요.' });
   }
 }

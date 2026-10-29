@@ -399,6 +399,25 @@ td.hl{color:var(--accent);font-weight:700}
 .comm-empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:36px 16px;border:1px dashed var(--line);border-radius:18px;font-size:.92rem}
 #commMore{align-self:center;min-width:180px}
 
+/* stats */
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi dt{font-size:.8rem;color:var(--muted);font-weight:600}
+.kpi dd{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(1.6rem,4.5vw,2.1rem);font-variant-numeric:tabular-nums;line-height:1.2}
+.kpi small{font-size:.76rem;color:var(--muted);line-height:1.4}
+.kpi.hl{background:var(--panel);border-color:var(--panel);color:var(--panel-fg)}
+.kpi.hl dt,.kpi.hl small{color:var(--panel-muted)}
+.kpi.hl dd{color:var(--p-accent)}
+.srcbars{display:flex;flex-direction:column;gap:8px}
+.srcbar{display:grid;grid-template-columns:6.5em minmax(0,1fr) 3.4em;gap:10px;align-items:center;font-size:.86rem}
+.srcbar .b{height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.srcbar .b i{display:block;height:100%;background:var(--accent)}
+.srcbar .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.stats-note{font-size:.82rem;color:var(--muted)}
+.notrack{display:flex;align-items:center;gap:8px;font-size:.86rem}
+.notrack input{width:18px;height:18px;accent-color:var(--accent)}
+
 /* shared result */
 .shared{max-width:560px;width:100%;margin:0 auto;gap:16px}
 .shared .start-q{margin-top:-8px}
@@ -589,6 +608,20 @@ td.hl{color:var(--accent);font-weight:700}
     <p class="start-note">내 조건과 원하는 상대 조건을 넣으면 나도 1분 만에 확인할 수 있어요. 무료이고 회원가입도 없어요.</p>
     <div class="btnrow"><a class="btn pri" href="#marry">결혼 눈높이 재 보기</a><a class="btn" href="#date">연애 눈높이 재 보기</a></div>
     <a class="navlink" href="#community">다른 사람들 인증 구경하기</a>
+  </section>
+
+  <section class="view stats-view" id="view-stats" aria-labelledby="h-stats" hidden>
+    <a class="back" href="#marry">← 판정하러 돌아가기</a>
+    <header class="comm-head">
+      <h2 id="h-stats" tabindex="-1">방문·공유 통계</h2>
+      <p>메뉴에는 없고 이 주소를 아는 사람만 들어올 수 있는 페이지예요. 날짜는 한국 시간 기준이고, 숫자만 세며 누가 들어왔는지는 저장하지 않아요.</p>
+    </header>
+    <div class="filters"><div class="seg" role="group" aria-label="기간" id="sPeriod"><button type="button" data-v="1" aria-pressed="false">오늘</button><button type="button" data-v="7" aria-pressed="true">7일</button><button type="button" data-v="30" aria-pressed="false">30일</button><button type="button" data-v="0" aria-pressed="false">전체</button></div></div>
+    <dl class="kpis" id="kpis"></dl>
+    <article class="card"><h3>어디서 들어왔나</h3><div class="srcbars" id="srcBars"></div><p class="stats-note">인스타그램·카카오톡·네이버 앱 안에서 연 방문은 앱 이름으로, 친구가 보낸 결과 링크로 들어온 방문은 '친구 링크'로 세요. 주소창에 직접 치거나 출처를 알 수 없는 방문은 '직접·기타'예요.</p></article>
+    <article class="card"><h3>날짜별</h3><div class="tbl-wrap"><table id="dayTbl"><thead><tr><th>날짜</th><th>방문</th><th>새 방문자</th><th>판정</th><th>공유</th><th>친구 링크 방문</th><th>인증 글</th></tr></thead><tbody></tbody></table></div></article>
+    <label class="notrack"><input type="checkbox" id="noTrack">이 기기에서 들어온 방문은 세지 않기 (내가 테스트할 때 켜 두세요)</label>
+    <p class="comm-state" id="statsState"></p>
   </section>
 
   <section class="method view" id="view-method" aria-labelledby="h-method" hidden>
@@ -1344,6 +1377,7 @@ function render(){
   $('#mTitle').textContent=v.title;$('#mSub').textContent=`나 ${fmtTop(pen?r.effRank:r.myRank)} · 내 기준선 ${fmtTop(r.targetRank)}`;
   lastShare={m:dating?'date':'marry',g,age:state.me.age,k:v.k,me:+(pen?r.effRank:r.myRank).toFixed(1),t:+r.targetRank.toFixed(1),r:r.conds.length?Math.min(1,Math.max(0,+r.rarity.toPrecision(4))):1,want:[`${w.ageMin}~${w.ageMax}살`,...r.conds.map(c=>c.label)].slice(0,8)};
   $('#actions').hidden=false;
+  if(state.edited&&view==='app')onceSession('mj-vd-'+lastShare.m,()=>track('verdict_'+lastShare.m));
 }
 
 /* ---------- static method tables ---------- */
@@ -1407,10 +1441,10 @@ let view='start';
 try{const io=new IntersectionObserver(es=>{es.forEach(en=>{$('#mbar').hidden=view!=='app'||en.isIntersecting;});},{threshold:0.15});io.observe($('#result'));}catch(e){}
 
 /* views: start, app (#marry/#date), #method, #community, shared result (#r=...) */
-const VIEWS=['start','app','method','community','shared'];
+const VIEWS=['start','app','method','community','shared','stats'];
 function route(){
   const h=location.hash;
-  const next=h==='#method'?'method':h==='#community'?'community':h.startsWith('#r=')?'shared':((h==='#marry'||h==='#date')?'app':'start');
+  const next=h==='#method'?'method':h==='#community'?'community':h==='#stats'?'stats':h.startsWith('#r=')?'shared':((h==='#marry'||h==='#date')?'app':'start');
   if(next==='app'){const m=h==='#date'?'date':'marry';if(m!==state.mode){setMode(m);render();save();}}
   if(next==='shared')renderShared(h.slice(3));
   if(next===view&&route.done)return;
@@ -1418,11 +1452,84 @@ function route(){
   VIEWS.forEach(v=>{$('#view-'+v).hidden=view!==v;});
   $('#navlink').hidden=view==='method';$('#navComm').hidden=view==='community';
   if(view!=='app')$('#mbar').hidden=true;
-  if(view==='community')openCommunity();
-  if(changed){window.scrollTo(0,0);const f={method:'#h-method',community:'#h-comm',shared:'#h-shared'}[view];if(f)$(f).focus({preventScroll:true});}
+  if(view==='community'){openCommunity();onceSession('mj-bv',()=>track('board_view'));}
+  if(view==='shared')onceSession('mj-so',()=>track('shared_open'));
+  if(view==='stats')loadStats();
+  if(changed){window.scrollTo(0,0);const f={method:'#h-method',community:'#h-comm',shared:'#h-shared',stats:'#h-stats'}[view];if(f)$(f).focus({preventScroll:true});}
 }
 window.addEventListener('hashchange',route);
 
+
+/* ---------- visit & share counting (counts only, nothing personal) ---------- */
+const TRACK_HOST=location.hostname==='metainji.vercel.app'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+function noTrack(){try{return localStorage.getItem('mj-notrack')==='1';}catch(e){return false;}}
+function track(e,extra){
+  if(!TRACK_HOST||noTrack())return;
+  const body=JSON.stringify({e,...(extra||{})});
+  try{if(navigator.sendBeacon&&navigator.sendBeacon('/api/stats',new Blob([body],{type:'text/plain'})))return;}catch(_){}
+  try{fetch('/api/stats',{method:'POST',body,keepalive:true,headers:{'Content-Type':'text/plain'}}).catch(()=>{});}catch(_){}
+}
+function onceSession(k,fn){try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');}catch(e){}fn();}
+function trafficSource(){
+  if(location.hash.startsWith('#r='))return 'friend';
+  const q=new URLSearchParams(location.search),tag=(q.get('from')||q.get('utm_source')||'').toLowerCase();
+  if(/insta/.test(tag))return 'instagram';if(/kakao/.test(tag))return 'kakao';if(/blog|naver/.test(tag))return 'naver';
+  const ua=navigator.userAgent||'';let h='';try{h=document.referrer?new URL(document.referrer).hostname:'';}catch(e){}
+  if(/Instagram/i.test(ua)||/(^|\.)instagram\.com$/.test(h))return 'instagram';
+  if(/KAKAOTALK/i.test(ua)||/kakao/.test(h))return 'kakao';
+  if(/NAVER\(inapp/i.test(ua)||/(^|\.)naver\.(com|me)$/.test(h))return 'naver';
+  if(/(^|\.)google\./.test(h))return 'google';
+  if(!h||h===location.hostname)return 'direct';
+  return 'other';
+}
+function countVisit(){
+  if(location.hash==='#stats')return;
+  onceSession('mj-visit',()=>{
+    track('visit',{src:trafficSource()});
+    try{if(!localStorage.getItem('mj-seen')){localStorage.setItem('mj-seen','1');track('new_visitor');}}catch(e){}
+  });
+}
+
+/* stats page (#stats) */
+const SRC_LABEL={instagram:'인스타그램',naver:'네이버',kakao:'카카오톡',google:'구글',friend:'친구 링크',direct:'직접·기타',other:'다른 사이트'};
+let statsData=null,statsPeriod=7;
+const nfmt=n=>Number(n||0).toLocaleString('ko-KR');
+function sumDays(n){
+  if(!statsData)return {};
+  if(n===0)return statsData.total;
+  const o={};statsData.days.slice(0,n).forEach(d=>{for(const[k,v]of Object.entries(d.c))o[k]=(o[k]||0)+v;});return o;
+}
+function renderStats(){
+  if(!statsData)return;
+  document.querySelectorAll('#sPeriod button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.v===statsPeriod)));
+  const c=sumDays(statsPeriod),g=k=>c[k]||0;
+  const shares=g('share_native')+g('share_save')+g('share_copy'),verd=g('verdict_marry')+g('verdict_date');
+  const kp=[
+    ['방문',nfmt(g('visit')),'같은 사람이 다시 오면 또 세요',true],
+    ['새 방문자',nfmt(g('new_visitor')),'처음 들어온 기기 수'],
+    ['판정',nfmt(verd),`결혼 ${nfmt(g('verdict_marry'))} · 연애 ${nfmt(g('verdict_date'))}`],
+    ['공유',nfmt(shares),`공유하기 ${nfmt(g('share_native'))} · 이미지 저장 ${nfmt(g('share_save'))} · 링크 복사 ${nfmt(g('share_copy'))}`,true],
+    ['친구 링크로 방문',nfmt(g('shared_open')),'공유받은 결과 링크를 연 횟수'],
+    ['게시판',nfmt(g('board_view')),`인증 글 ${nfmt(g('post'))}개 · 지금 게시판에 ${nfmt(statsData.posts)}개`],
+  ];
+  $('#kpis').innerHTML=kp.map(([l,v,s,hl])=>`<div class="kpi${hl?' hl':''}"><dt>${l}</dt><dd>${v}</dd><small>${s}</small></div>`).join('');
+  const src=Object.keys(SRC_LABEL).map(k=>[k,g('src_'+k)]).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...src.map(x=>x[1]));
+  $('#srcBars').innerHTML=src.map(([k,v])=>`<div class="srcbar"><span>${SRC_LABEL[k]}</span><span class="b"><i style="width:${(v/max*100).toFixed(1)}%"></i></span><span class="v">${nfmt(v)}</span></div>`).join('');
+  const rows=statsData.days.slice(0,statsPeriod===0?30:Math.max(statsPeriod,7));
+  $('#dayTbl tbody').innerHTML=rows.map(d=>{const x=d.c,s=(x.share_native||0)+(x.share_save||0)+(x.share_copy||0);return `<tr><td>${d.d.slice(5).replace('-','/')}${d.d===statsData.today?' (오늘)':''}</td><td>${nfmt(x.visit)}</td><td>${nfmt(x.new_visitor)}</td><td>${nfmt((x.verdict_marry||0)+(x.verdict_date||0))}</td><td>${nfmt(s)}</td><td>${nfmt(x.shared_open)}</td><td>${nfmt(x.post)}</td></tr>`;}).join('');
+}
+async function loadStats(){
+  $('#noTrack').checked=noTrack();
+  $('#statsState').textContent=statsData?'':'불러오는 중…';
+  if(!TRACK_HOST){$('#statsState').innerHTML=`통계는 <a href="${SITE}/#stats" target="_blank" rel="noopener">metainji.vercel.app/#stats</a>에서 볼 수 있어요.`;return;}
+  try{
+    const res=await fetch('/api/stats?days=30',{cache:'no-store'});
+    if(!res.ok)throw new Error(String(res.status));
+    statsData=await res.json();$('#statsState').textContent='';renderStats();
+  }catch(e){$('#statsState').textContent=String(e.message)==='503'?'통계 저장소가 아직 연결되지 않았어요.':'통계를 불러오지 못했어요. 새로고침해 주세요.';}
+}
+$('#sPeriod').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;statsPeriod=+b.dataset.v;renderStats();});
+$('#noTrack').addEventListener('change',e=>{try{if(e.target.checked)localStorage.setItem('mj-notrack','1');else localStorage.removeItem('mj-notrack');}catch(_){}toast(e.target.checked?'이제 이 기기 방문은 세지 않아요':'이 기기 방문도 다시 세요');});
 
 /* ---------- share & community ---------- */
 const SITE='https://metainji.vercel.app';
@@ -1511,9 +1618,10 @@ async function drawShare(o){
 async function openShare(){
   if(!lastShare)return;
   shareFor={...lastShare};
-  $('#doShare').hidden=!navigator.share;
+  $('#doShare').hidden=!navigator.share;$('#doSave').hidden=!ON_SITE;
   $('#shareImg').removeAttribute('src');
   const d=$('#shareDlg');if(!d.open)d.showModal();
+  track('share_dialog');
   const c=await drawShare(shareFor);
   shareBlob=await new Promise(r=>c.toBlob(r,'image/png'));
   if(shareObjUrl)URL.revokeObjectURL(shareObjUrl);
@@ -1527,10 +1635,11 @@ $('#doShare').addEventListener('click',async()=>{
     const file=shareBlob&&new File([shareBlob],'metainji-result.png',{type:'image/png'});
     if(file&&navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:'메타인지 판정 결과',text:`${text}\n${url}`});
     else await navigator.share({title:'메타인지 판정 결과',text,url});
-  }catch(e){if(!e||e.name!=='AbortError')copyText(`${text}\n${url}`,'공유 대신 링크를 복사했어요');}
+    track('share_native');
+  }catch(e){if(!e||e.name!=='AbortError'){copyText(`${text}\n${url}`,'공유 대신 링크를 복사했어요');track('share_copy');}}
 });
-$('#doSave').addEventListener('click',()=>{if(!shareObjUrl)return;const a=document.createElement('a');a.href=shareObjUrl;a.download='메타인지-판정결과.png';$('#shareDlg').appendChild(a);a.click();a.remove();});
-$('#doCopy').addEventListener('click',()=>{const o=shareFor;if(o)copyText(`${shareText(o)}\n${shareUrl(o)}`,'링크를 복사했어요. 카톡에 붙여 넣어 보내 보세요');});
+$('#doSave').addEventListener('click',()=>{if(!shareObjUrl)return;track('share_save');const a=document.createElement('a');a.href=shareObjUrl;a.download='메타인지-판정결과.png';$('#shareDlg').appendChild(a);a.click();a.remove();});
+$('#doCopy').addEventListener('click',()=>{const o=shareFor;if(o)track('share_copy');if(o)copyText(`${shareText(o)}\n${shareUrl(o)}`,'링크를 복사했어요. 카톡에 붙여 넣어 보내 보세요');});
 
 /* shared result link */
 function renderShared(code){
@@ -1624,7 +1733,7 @@ $('#plist').addEventListener('click',async e=>{
   setMode(saved&&saved.mode);
   if(saved){state.gender=saved.gender;state.me=saved.me;state.want=saved.want;if(!Array.isArray(state.want.jobs))state.want.jobs=[];state.edited=true;$('#exampleNote').hidden=true;writeForm();}
   else{const ex=JSON.parse(JSON.stringify(EXAMPLES.M));state.me=ex.me;state.want=ex.want;writeForm();}
-  renderMethod();route();render();
+  renderMethod();route();render();countVisit();
   // build the simulated pools after the first paint so the page shows and scrolls right away
   setTimeout(async()=>{
     try{const M=await buildPool('M',20261028);const F=await buildPool('F',19931028);pools={M,F};renderMethodPools();render();}
