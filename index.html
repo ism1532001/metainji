@@ -361,7 +361,7 @@ td.hl{color:var(--accent);font-weight:700}
     <button type="button" role="tab" class="mode" id="mode-marry" data-mode="marry" aria-selected="true"><b>결혼 상대</b><small>외모·키·나이에 경제력·직업·집안까지</small></button>
     <button type="button" role="tab" class="mode" id="mode-date" data-mode="date" aria-selected="false"><b>연애 상대</b><small>외모·키·나이만 비교</small></button>
   </div>
-  <p class="mode-note" id="modeNote" hidden>연애 탭은 외모·키·나이만 봐요. 나이가 많을수록 괜찮은 이성은 이미 결혼했을 가능성이 높아서, 원하는 나이대에서 조건을 갖춘 사람 중 미혼 비율이 낮을수록 감점해요.</p>
+  <p class="mode-note" id="modeNote" hidden>연애 탭은 외모·키·나이만 봐요. 나이가 많을수록 괜찮은 이성은 이미 결혼했을 가능성이 높아서, 원하는 나이대에서 조건을 갖춘 사람 중 미혼 비율이 낮을수록 감점해요. 연애는 보통 여자가 고르는 쪽이라 여자는 가산점이 있어요.</p>
   <div class="layout">
     <form class="inputs" id="form" novalidate>
       <div class="gender">
@@ -575,6 +575,7 @@ td.hl{color:var(--accent);font-weight:700}
         <p>연애에서는 경제력·직업·학력·집안을 보지 않고 외모·키·나이만으로 순위를 매겨요. 다만 이미 결혼한 사람은 만날 수 없으니, 가상 인원마다 아직 미혼일 확률을 붙여요. 미혼 확률은 나이대별 미혼율(통계청)에서 시작해서, 결혼 시장 순위가 높을수록(외모·키에 경제력·직업·집안까지 좋을수록) 일찍 결혼한다고 보고 낮췄어요. 그래서 키 크고 외모는 괜찮지만 스펙이 평범한 사람은 연애 탭에서 더 많이 남아 있어요.</p>
         <div class="tbl-wrap"><table id="singleTbl"><thead><tr><th>한국 나이</th><th>남자 미혼율</th><th>결혼 시장 상위 20% 남자</th><th>여자 미혼율</th><th>결혼 시장 상위 20% 여자</th></tr></thead><tbody></tbody></table></div>
         <p><b>기혼 감점.</b> 원하는 나이대에서 내 조건을 갖춘 사람 중 미혼 비율이 85%보다 낮을수록 실질 위치를 깎아요. 50%면 0.27, 30%면 0.52, 15%면 0.87만큼(정규분포 점수) 깎고 최대 1.0까지예요. 나이가 많은 상대를 원할수록, 기준이 높을수록 감점이 커져요.</p>
+        <p><b>여자 선택권 가산점.</b> 연애에서는 보통 남자가 먼저 다가오고 여자가 고르는 쪽이라, 여자는 실질 위치를 0.3(정규분포 점수)만큼 올려 줘요. 그래서 연애 탭은 결혼 탭보다 여자에게 조금 더 유리하게 계산돼요.</p>
         <p class="sub">외모 닮은꼴 감점, 나이차 가감점, 여자의 키 조건 감점은 결혼 탭과 똑같이 적용해요. 연애 탭의 남자 나이 점수는 32살까지 같고 그 뒤로 한 살마다 5점씩 내려가요.</p>
       </article>
       <article class="card wide">
@@ -795,6 +796,8 @@ function singleBase(g,a){const P=SINGLE_PTS[g];if(a<=P[0][0])return P[0][1];for(
 const SINGLE_SKEW = 1.6;
 function singleProb(g,a,rank){return Math.pow(singleBase(g,a),Math.exp(SINGLE_SKEW*(rank/100-0.5)));}
 function marriedPenalty(avail){return Math.min(1,Math.max(0,0.5*Math.log(0.85/Math.max(0.01,avail))));}
+// in dating, women usually get approached and choose, so their effective position gets a small lift (z units)
+const DATE_F_EDGE = 0.3;
 const other = g => g==='M'?'F':'M';
 const word = g => g==='M'?'남성':'여성';
 
@@ -1089,7 +1092,8 @@ function evaluateDate(){
   const baseRank=hPts?pct(myPool.sTotD,myTotal-hPts):myRank;
   res.avail=pass?passW/pass:res.availAll;
   res.marPen=marriedPenalty(res.avail);
-  res.effZ=zOf(baseRank)-res.penalty+res.ageAdj.reduce((t,x)=>t+x.v,0)-res.marPen;
+  res.dateEdge=g==='F'?DATE_F_EDGE:0;
+  res.effZ=zOf(baseRank)-res.penalty+res.ageAdj.reduce((t,x)=>t+x.v,0)-res.marPen+res.dateEdge;
   res.effRank=100*Phi(res.effZ);
   let num=0,den=0;for(let q=0;q<pass;q++){const i=qual[q],s1=tp.single[i];den+=s1;if(tp.rankD[i]<=res.effRank+5)num+=s1;}
   res.realistic=den?num/den:0;
@@ -1158,7 +1162,7 @@ function render(){
   const gap=zOf(r.targetRank)-r.effZ;
   const v=verdictOf(gap);
   const pen=Math.abs(r.effZ-zOf(r.myRank))>0.02, topSim=[...r.sim].sort((a,b)=>b.p-a.p)[0];
-  const reasons=[];if(r.penalty>0.02)reasons.push(`${topSim.label} 차이`);r.ageAdj.forEach(x=>reasons.push(x.key==='young'?'5살 이상 연하 희망':'6살 이상 연상 허용'));if(r.pickPen>0.02)reasons.push('키 기준이 까다로움');if(dating&&r.marPen>0.02)reasons.push('그 나이대 기혼 비율');
+  const reasons=[];if(r.penalty>0.02)reasons.push(`${topSim.label} 차이`);r.ageAdj.forEach(x=>reasons.push(x.key==='young'?'5살 이상 연하 희망':'6살 이상 연상 허용'));if(r.pickPen>0.02)reasons.push('키 기준이 까다로움');if(dating&&r.marPen>0.02)reasons.push('그 나이대 기혼 비율');if(dating&&r.dateEdge)reasons.push('연애 시장 여자 선택권');
   res.style.setProperty('--tone',v.tone);mbar.style.setProperty('--tone',v.tone);
   $('#vChip').textContent=v.chip;$('#vTitle').textContent=v.title;
   $('#vLead').innerHTML=`${dating?'연애 시장에서 ':''}${word(g)} 중 나는 <b>${fmtTop(r.myRank)}</b>, 내 기준을 아슬아슬하게 통과하는 ${word(pg)}은 <b>${fmtTop(r.targetRank)}</b>예요. ${v.line}`+(pen?` 가감점(${reasons.join(', ')})을 반영한 실질 위치는 <b>${fmtTop(r.effRank)}</b>예요.`:'');
@@ -1181,8 +1185,9 @@ function render(){
     +r.ageAdj.map(x=>`<li><span class="sl">${x.label}</span><span class="sv">${x.text}</span><span class="st st-${x.v<0?'high':'fit'}">${x.v<0?'감점':'가산점'}</span></li>`).join('')
     +r.pick.map(x=>`<li><span class="sl">${x.label}</span><span class="sv">${x.text}</span><span class="st st-high">−${x.pts}점</span></li>`).join('')
     +(dating?`<li><span class="sl">기혼 비율</span><span class="sv">${w.ageMin}~${w.ageMax}살${r.conds.length?' 조건 충족':''} ${word(pg)} 중 미혼 약 ${Math.round(r.avail*100)}%</span><span class="st st-${r.marPen>=0.3?'high':(r.marPen>0.02?'high':'fit')}">${r.marPen>=0.3?'감점 큼':(r.marPen>0.02?'감점':'괜찮음')}</span></li>`:'')
+    +(dating&&r.dateEdge?`<li><span class="sl">선택권</span><span class="sv">연애는 보통 여자가 고르는 쪽이라 실질 위치를 올려요</span><span class="st st-fit">가산점</span></li>`:'')
     +r.matched.map(c=>`<li><span class="sl">${c.f==='want-fam'?'집안 조건':'학력 조건'}</span><span class="sv">${c.label.replace(/^(집안|학력) /,'')} · ${c.same?'나와 비슷한 집안이라':'나도 같은 수준이라'} 눈높이 계산에서 뺐어요</span><span class="st st-fit">제외</span></li>`).join('');
-  $('#simNote').textContent=dating?(pen?`가감점을 반영하면 실질 위치가 ${fmtTop(r.myRank)}에서 ${fmtTop(r.effRank)}로 ${r.effRank<r.myRank?'내려가요':'올라가요'}. 외모 차이와 나이차, 그리고 원하는 나이대의 괜찮은 사람이 이미 결혼한 비율을 반영했어요.`:'외모 차이와 나이차 가감점이 없고, 원하는 나이대에 미혼도 충분해요.'):pen?`가감점을 반영하면 실질 위치가 ${fmtTop(r.myRank)}에서 ${fmtTop(r.effRank)}로 ${r.effRank<r.myRank?'내려가요':'올라가요'}. 상대는 항목마다 자기와 비슷한 사람을 찾고, 나이차가 클수록 상대 쪽 선택지가 줄기 때문이에요.`:'외모·능력·집안이 원하는 상대와 크게 차이 나지 않고, 나이차 가감점도 없어요.';
+  $('#simNote').textContent=dating?(pen?`가감점을 반영하면 실질 위치가 ${fmtTop(r.myRank)}에서 ${fmtTop(r.effRank)}로 ${r.effRank<r.myRank?'내려가요':'올라가요'}. 외모 차이와 나이차, 그리고 원하는 나이대의 괜찮은 사람이 이미 결혼한 비율을 반영했어요.${r.dateEdge?' 여자는 연애에서 고르는 쪽이라 가산점도 받았어요.':''}`:'외모 차이와 나이차 가감점이 없고, 원하는 나이대에 미혼도 충분해요.'):pen?`가감점을 반영하면 실질 위치가 ${fmtTop(r.myRank)}에서 ${fmtTop(r.effRank)}로 ${r.effRank<r.myRank?'내려가요':'올라가요'}. 상대는 항목마다 자기와 비슷한 사람을 찾고, 나이차가 클수록 상대 쪽 선택지가 줄기 때문이에요.`:'외모·능력·집안이 원하는 상대와 크게 차이 나지 않고, 나이차 가감점도 없어요.';
   const wah=$('#want-age-h');if(!wah.classList.contains('err'))wah.textContent=r.ageAdj.length?r.ageAdj.map(x=>x.v<0?`나보다 ${state.me.age-w.ageMax}살 이상 어린 상대만 원해서 감점돼요`:`${w.ageMax-state.me.age}살 연상까지 열어 둬서 가산점이 있어요`).join(' '):'';
   const so=$('#want-fam option[value="same"]');if(so)so.textContent=`나와 비슷한 집안 (${famSimilar(state.me.fam).text})`;
   const mah=$('#me-age-h');if(!mah.classList.contains('err'))mah.textContent=r.myAgePen>0?`38살부터 감점 · 종합 점수 −${r.myAgePen.toFixed(1)}점`:'';
